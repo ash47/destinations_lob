@@ -16,6 +16,7 @@ Constants.hand1_grip = bit.lshift(1, 20)
 -- Items
 Constants.item_nothing = 1
 Constants.item_sword = 2
+Constants.item_shield = 3
 
 -- Export
 return Constants

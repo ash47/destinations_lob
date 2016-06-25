@@ -36,13 +36,51 @@ function Gamemode:init(ply, hmd, hand0, hand1)
     --DeepPrintTable(getmetatable(self.tpDevice0))
 
     -- Try out a sword
-    --self:swordTest()
+    self:physTest()
 
     -- Start thinking
     timers:setTimeout('onThink', 0.1, self)
 
     -- All good
     errorlib:notify('Gamemode has started successfully!')
+end
+
+function Gamemode:physTest()
+    local ent = Entities:FindByName(nil, 'triggerTest')
+
+    local scope = ent:GetOrCreatePrivateScriptScope()
+    scope.OnStartTouch = function(args)
+        print('on touch!')
+    end
+
+    scope.OnTrigger = function(args)
+        print('on trigger!')
+    end
+    ent:RedirectOutput('OnTrigger', 'OnTrigger', ent)
+    ent:RedirectOutput('OnStartTouch', 'OnStartTouch', ent)
+
+
+    --print(ent:GetModelName())
+
+    --[[local newTrigger = Entities:CreateByClassname('trigger_multiple')
+
+    --DeepPrintTable(getmetatable(newTrigger))
+
+    --newTrigger:SetModel(ent:GetModelName())
+    --newTrigger:SetOrigin(ent:GetOrigin())
+
+    local scope = newTrigger:GetOrCreatePrivateScriptScope()
+    scope.OnStartTouch = function(args)
+        print('on touch!asdadasda')
+    end
+
+    scope.OnTrigger = function(args)
+        print('on trigger!asdsadsadas')
+    end
+    newTrigger:RedirectOutput('OnTrigger', 'OnTrigger', newTrigger)
+    newTrigger:RedirectOutput('OnStartTouch', 'OnStartTouch', newTrigger)]]
+
+    --print(ent:GetClassname())
 end
 
 -- Gamemode think function
@@ -104,8 +142,6 @@ function Gamemode:generatePathNode(pos)
     -- Add the callback
     local scope = ent:GetOrCreatePrivateScriptScope()
     scope.OnTeleportTo = function(args)
-        print('onTeleport!')
-
         -- Move the marker
         this.pathMarker:SetOrigin(pos)
 
@@ -200,7 +236,8 @@ function Gamemode:initInventory()
     -- Defines all items that can be gotten
     self.itemOrderList = {
         [1] = constants.item_nothing,
-        [2] = constants.item_sword
+        [2] = constants.item_sword,
+        [3] = constants.item_shield
     }
 
     -- Define the reverse lookup table
@@ -299,42 +336,48 @@ function Gamemode:createHandItem(itemID)
         local ent = Entities:CreateByClassname('prop_physics')
         ent:SetModel('models/weapons/sword1/sword1.vmdl')
 
-        local mins = ent:GetBoundingMins()
-        local maxs = ent:GetBoundingMaxs()
+        print('a')
 
-        local trigger = CreateTrigger(mins, maxs, Vector(0, 0, 0))
-        trigger:SetParent(ent, '')
+        local cols = Entities:FindByName(nil, 'triggerTest')
+        cols:SetOrigin(ent:GetOrigin())
+        cols:SetParent(ent, '')
 
+        --local mins = ent:GetBoundingMins()
+        --local maxs = ent:GetBoundingMaxs()
 
-        trigger.test = function()
-            print('ttest')
+        --local trigger = CreateTrigger(Vector(0,0,0), mins, maxs)
+        --local trigger = CreateTrigger(Vector(-1000,-1000,-1000), Vector(1000,1000,1000), Vector(0,0,0))
+        --local trigger = CreateTriggerRadiusApproximate(ent:GetOrigin(), 100)
+        --trigger:SetParent(ent, '')
+
+        --[[trigger:FireOutput('spawnflags', nil, nil, {
+
+        }, 0)]]
+
+        --[[DoEntFireByInstanceHandle(trigger, 'spawnflags', '11', 0, nil, nil)
+
+        local scope = trigger:GetOrCreatePrivateScriptScope()
+        scope.OnStartTouch = function(args)
+            print('on touch!')
         end
 
-        trigger:ConnectOutput('OnStartTouch', 'test')
+        scope.OnTrigger = function(args)
+            print('on trigger!')
+        end
+        trigger:RedirectOutput('OnTrigger', 'OnTrigger', trigger)
+        trigger:RedirectOutput('OnStartTouch', 'OnStartTouch', trigger)
 
+        trigger:Trigger()
+        DoEntFireByInstanceHandle(trigger, 'OnStartTouch', '11', 0, nil, nil)]]
 
         return ent
     end
-end
 
--- Sword debug function
-function Gamemode:swordTest()
-    -- Grab hand
-    local hand0 = self.hand0
-    local angles = hand0:GetAnglesAsVector()
-
-    --self.tpDevice0:SetModel('models/weapons/sword1/sword1.vmdl')
-    --self.hand0:SetModel('models/weapons/sword1/sword1.vmdl')
-
-    -- Remove old item
-    --hand0:SetHandAttachment(nil)
-
-    -- Create the sword
-    --[[local ent = Entities:CreateByClassname('prop_physics')
-    ent:SetModel('models/weapons/sword1/sword1.vmdl')
-    ent:SetOrigin(hand0:GetOrigin())
-    ent:SetParent(hand0, '')
-    ent:SetAngles(angles.x, angles.y, angles.z)]]
+    if itemID == constants.item_shield then
+        local ent = Entities:CreateByClassname('prop_physics')
+        ent:SetModel('models/items/shield1/shield1.vmdl')
+        return ent
+    end
 end
 
 -- Export the gamemode
