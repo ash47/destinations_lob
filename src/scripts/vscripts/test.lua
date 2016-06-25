@@ -18,4 +18,10 @@ timers:setTimeout(function()
 end, 2)]]
 
 
-print(Time())
+--print(Time())
+
+--[[local ply = Entities:FindByClassname(nil, 'player')
+local floor = Entities:FindByName(nil, 'testTeleport')
+
+floor:SetParent(ply, '')]]
+

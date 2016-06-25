@@ -55,9 +55,10 @@ end
 function Gamemode:initButtons()
     -- Stored which buttons were pressed last frame
     self.buttonPressed = {}
+    self.doneLongPress = {}
 
     -- How long is considered a long hold
-    self.longHold = 0.5
+    self.longHold = 0.25
 
     -- Contains all buttons for hand0
 
@@ -82,8 +83,11 @@ function Gamemode:handleButtons()
             else
                 -- Check how long we were holding it
                 local timeHeld = now - self.buttonPressed[gripButtonID]
-                if timeHeld >= self.longHold then
+                if timeHeld >= self.longHold and not self.doneLongPress[gripButtonID] then
+                    self.doneLongPress[gripButtonID] = true
                     --print('Long hold! ' .. handID)
+
+                    self:spawnMelon(handID)
                 end
             end
         else
@@ -98,9 +102,24 @@ function Gamemode:handleButtons()
 
                 -- Reset that it is no longer pressed
                 self.buttonPressed[gripButtonID] = nil
+                self.doneLongPress[gripButtonID] = nil
             end
         end
     end
+end
+
+-- DEBUG: Spawn Melon
+function Gamemode:spawnMelon(handID)
+    local hand = self['hand' .. handID]
+    if not hand then
+        errorlib:error('Failed to find hand ' .. handID)
+        return
+    end
+
+    local ent = Entities:CreateByClassname('prop_physics')
+    ent:SetModel('models/props_junk/watermelon01.vmdl')
+
+    ent:SetOrigin(hand:GetOrigin() + Vector(0, 0, 64))
 end
 
 -- Init inventory system
@@ -209,6 +228,20 @@ function Gamemode:createHandItem(itemID)
     if itemID == constants.item_sword then
         local ent = Entities:CreateByClassname('prop_physics')
         ent:SetModel('models/weapons/sword1/sword1.vmdl')
+
+        local mins = ent:GetBoundingMins()
+        local maxs = ent:GetBoundingMaxs()
+
+        local trigger = CreateTrigger(mins, maxs, Vector(0, 0, 0))
+        trigger:SetParent(ent, '')
+
+
+        trigger.test = function()
+            print('ttest')
+        end
+
+        trigger:ConnectOutput('OnStartTouch', 'test')
+
 
         return ent
     end
