@@ -28,6 +28,9 @@ function Gamemode:init(ply, hmd, hand0, hand1)
     -- Init Inventory
     self:initInventory()
 
+    -- Generate paths
+    self:generatePaths()
+
     --print(self.tpDevice0)
 
     --DeepPrintTable(getmetatable(self.tpDevice0))
@@ -49,6 +52,73 @@ function Gamemode:onThink()
 
     -- Run again after a short delay
     return 0.1
+end
+
+-- Generates paths
+function Gamemode:generatePaths(currentPath)
+    local marker = Entities:FindByName(nil, 'pathGenerationMarker')
+    if not marker then
+        errorlib:error('Unable to find path generation marker')
+        return
+    end
+
+    self.pathMarker = marker
+
+    -- Ensure we have a table to store generated nodes
+    self.generatedNodes = self.generatedNodes or {}
+
+    -- Cleanup old nodes
+    for nodeID, node in pairs(self.generatedNodes) do
+        if node ~= currentPath then
+            node:RemoveSelf()
+        end
+    end
+
+    -- Update our current path
+    if self.pathRemoveNextTime and self.pathRemoveNextTime ~= currentPath then
+        self.pathRemoveNextTime:RemoveSelf()
+    end
+    self.pathRemoveNextTime = currentPath
+
+    -- Create new table
+    self.generatedNodes = {}
+
+    local middle = marker:GetOrigin()
+
+    -- Spawn new nodes
+    --table.insert(self.generatedNodes, self:generatePathNode(middle))
+    table.insert(self.generatedNodes, self:generatePathNode(middle + Vector(128, 0, 0)))
+    table.insert(self.generatedNodes, self:generatePathNode(middle + Vector(-128, 0, 0)))
+    table.insert(self.generatedNodes, self:generatePathNode(middle + Vector(0, 128, 0)))
+    table.insert(self.generatedNodes, self:generatePathNode(middle + Vector(0, -128, 0)))
+end
+
+function Gamemode:generatePathNode(pos)
+    -- Grab a reference to the gamemode
+    local this = self
+
+    -- Create the entity
+    local ent = Entities:CreateByClassname('vr_teleport_marker')
+    ent:SetOrigin(pos)
+
+    -- Add the callback
+    local scope = ent:GetOrCreatePrivateScriptScope()
+    scope.OnTeleportTo = function(args)
+        print('onTeleport!')
+
+        -- Move the marker
+        this.pathMarker:SetOrigin(pos)
+
+        -- Generate new paths
+        this:generatePaths(ent)
+    end
+    ent:RedirectOutput('OnTeleportTo', 'OnTeleportTo', ent)
+
+    return ent
+end
+
+function Gamemode:test()
+    print('test')
 end
 
 -- Init buttons
