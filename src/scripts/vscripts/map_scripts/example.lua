@@ -33,3 +33,11 @@ function OnHMDAvatarAndHandsSpawned()
     end, 0)
 end
 
+-- Precaching
+function OnPrecache(context)
+    print('precache')
+
+    -- Precache
+    context:AddResource('models/weapons/sword1/sword1.vmdl')
+    context:AddResource('models/props_junk/watermelon01.vmdl')
+end
