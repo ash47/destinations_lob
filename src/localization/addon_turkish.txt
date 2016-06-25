@@ -1,0 +1,13 @@
+﻿"lang"
+{
+"Language"	"turkish"
+"Tokens"
+{
+"ExampleAddon_Title"	"Örnek İnteraktif Diyalog"
+"[english]ExampleAddon_Title"	"Example Interactive Dialog"
+"ExampleAddon_Welcome_Title"	"Örnek Hedef"
+"[english]ExampleAddon_Welcome_Title"	"Example Destination"
+"ExampleAddon_Robot_Title"	"Örnek Tetik Ses Düzeyi"
+"[english]ExampleAddon_Robot_Title"	"Example Trigger Volume"
+}
+}

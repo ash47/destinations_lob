@@ -1,0 +1,13 @@
+﻿"lang"
+{
+"Language"	"schinese"
+"Tokens"
+{
+"ExampleAddon_Desc"	"这是一个对话示例，为您展示如何为您的 UI 附加功能。\n\n点击下面的按钮，您可以切换显示好奇号火星探测车。"
+"[english]ExampleAddon_Desc"	"This is an example dialog that shows how you can attach functionality to your UI.\n\nClicking the button below, you can toggle the display of the Curiosity Rover."
+"ExampleAddon_ShowModel"	"显示探测车"
+"[english]ExampleAddon_ShowModel"	"Show Rover"
+"ExampleAddon_HideModel"	"隐藏探测车"
+"[english]ExampleAddon_HideModel"	"Hide Rover"
+}
+}

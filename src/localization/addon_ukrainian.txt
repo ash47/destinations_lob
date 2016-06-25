@@ -1,0 +1,23 @@
+﻿"lang"
+{
+"Language"	"ukrainian"
+"Tokens"
+{
+"ExampleAddon_Title"	"Приклад інтерактивного діалогу"
+"[english]ExampleAddon_Title"	"Example Interactive Dialog"
+"ExampleAddon_Desc"	"Це приклад діалогу, який показує, як ви можете додавати функціональніть до вашого користувацького інтерфейсу.\n\nНатискаючи на кнопку нижче, ви можете перемикати вигляд марсоходу «К’юріосіті»."
+"[english]ExampleAddon_Desc"	"This is an example dialog that shows how you can attach functionality to your UI.\n\nClicking the button below, you can toggle the display of the Curiosity Rover."
+"ExampleAddon_ShowModel"	"Показати марсохід"
+"[english]ExampleAddon_ShowModel"	"Show Rover"
+"ExampleAddon_HideModel"	"Сховати марсохід"
+"[english]ExampleAddon_HideModel"	"Hide Rover"
+"ExampleAddon_Welcome_Title"	"Приклад місця для відвідин"
+"[english]ExampleAddon_Welcome_Title"	"Example Destination"
+"ExampleAddon_Welcome_Desc"	"Це приклад доповнення «Місце для відвідин», яке ви можете скопіювати і погратися з ним.\n\nВи стоїте у зоні телепортації, яка дозволяє гравцям телепортуватися будь-куди у доступних межах.\n\nПраворуч від вас є маркер телепортації. Якщо ви телепортуєтеся туди, то увійдете в об’єм задіяння (триґер), який відобразить елементи користувацького інтерфейсу, з якими ви можете взаємодіяти."
+"[english]ExampleAddon_Welcome_Desc"	"This is an example Destinations addon you can copy and tinker with.\n\nYou are standing on a teleport area, which allows players to teleport anywhere inside the bounds.\n\nTo the right of where you started is a teleport marker. When you teleport there, you'll enter a \\'trigger\\' volume, which will display some UI that you can interact with."
+"ExampleAddon_Robot_Title"	"Приклад об’єму задіяння"
+"[english]ExampleAddon_Robot_Title"	"Example Trigger Volume"
+"ExampleAddon_Robot_Desc"	"Ця модель робота викорстовує об’єм задіяння, невидимий куб, який оточує модель (тут показаний помаранчевою сіткою). Він задіює дві анімації: перша відтворюється коли ви заходити в об’єм, а друга — коли виходите з нього."
+"[english]ExampleAddon_Robot_Desc"	"This robot model also uses a trigger volume, an invisible box that surrounds the model (represented here with an orange wireframe).  It will trigger two animations to play on the robot model, one when you enter the volume, and a second when you leave it."
+}
+}

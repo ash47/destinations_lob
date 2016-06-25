@@ -1,0 +1,13 @@
+﻿"lang"
+{
+"Language"	"tchinese"
+"Tokens"
+{
+"ExampleAddon_ShowModel"	"顯示探測車"
+"[english]ExampleAddon_ShowModel"	"Show Rover"
+"ExampleAddon_HideModel"	"隱藏探測車"
+"[english]ExampleAddon_HideModel"	"Hide Rover"
+"ExampleAddon_Welcome_Title"	"目的地範例"
+"[english]ExampleAddon_Welcome_Title"	"Example Destination"
+}
+}

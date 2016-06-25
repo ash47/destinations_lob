@@ -1,0 +1,15 @@
+﻿"lang"
+{
+"Language"	"german"
+"Tokens"
+{
+"ExampleAddon_Title"	"Interaktiver Beispieldialog"
+"[english]ExampleAddon_Title"	"Example Interactive Dialog"
+"ExampleAddon_Desc"	"Dies ist ein Beispieldialog, der Ihnen zeigen soll, wie Sie Ihrer Benutzeroberfläche Funktionalität hinzufügen können.\n\nKlicken Sie auf die Schaltfläche unten, um das Display des Curiosity Rovers ein- oder auszuschalten."
+"[english]ExampleAddon_Desc"	"This is an example dialog that shows how you can attach functionality to your UI.\n\nClicking the button below, you can toggle the display of the Curiosity Rover."
+"ExampleAddon_ShowModel"	"Rover anzeigen"
+"[english]ExampleAddon_ShowModel"	"Show Rover"
+"ExampleAddon_HideModel"	"Rover verbergen"
+"[english]ExampleAddon_HideModel"	"Hide Rover"
+}
+}

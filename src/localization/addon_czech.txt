@@ -1,0 +1,23 @@
+﻿"lang"
+{
+"Language"	"czech"
+"Tokens"
+{
+"ExampleAddon_Title"	"Ukázkové interaktivní dialogové okno"
+"[english]ExampleAddon_Title"	"Example Interactive Dialog"
+"ExampleAddon_Desc"	"Toto je ukázkové dialogové okno, které předvádí, jak přidat rozhraní určitou funkci.\n\nKliknutím na tlačítko níže můžete zobrazit nebo naopak skrýt vozítko Curiosity."
+"[english]ExampleAddon_Desc"	"This is an example dialog that shows how you can attach functionality to your UI.\n\nClicking the button below, you can toggle the display of the Curiosity Rover."
+"ExampleAddon_ShowModel"	"Zobrazit vozítko"
+"[english]ExampleAddon_ShowModel"	"Show Rover"
+"ExampleAddon_HideModel"	"Skrýt vozítko"
+"[english]ExampleAddon_HideModel"	"Hide Rover"
+"ExampleAddon_Welcome_Title"	"Ukázková destinace"
+"[english]ExampleAddon_Welcome_Title"	"Example Destination"
+"ExampleAddon_Welcome_Desc"	"Toto je ukázková destinace, kterou můžete zkopírovat a různě upravit.\n\nPrávě stojíte na teleportu, pomocí něhož se mohou hráči přenést kamkoli v destinaci.\n\nNa pravé straně od místa, kde jste začali, se nachází značka teleportu. Když se k ní teleportujete, vstoupíte do „spouštěcí oblasti“ a zobrazí se vám rozhraní, se kterým budete moci pracovat."
+"[english]ExampleAddon_Welcome_Desc"	"This is an example Destinations addon you can copy and tinker with.\n\nYou are standing on a teleport area, which allows players to teleport anywhere inside the bounds.\n\nTo the right of where you started is a teleport marker. When you teleport there, you'll enter a \\'trigger\\' volume, which will display some UI that you can interact with."
+"ExampleAddon_Robot_Title"	"Ukázková spouštěcí oblast"
+"[english]ExampleAddon_Robot_Title"	"Example Trigger Volume"
+"ExampleAddon_Robot_Desc"	"Tento model robota také používá spouštěcí oblast – neviditelný kvádr, který obklopuje samotný model (zde znázorněný oranžovou sítí). Když do oblasti vstoupíte, přehraje se jedna animace robota, a když z ní odejdete, přehraje se druhá animace."
+"[english]ExampleAddon_Robot_Desc"	"This robot model also uses a trigger volume, an invisible box that surrounds the model (represented here with an orange wireframe).  It will trigger two animations to play on the robot model, one when you enter the volume, and a second when you leave it."
+}
+}

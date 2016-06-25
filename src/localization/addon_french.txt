@@ -1,0 +1,23 @@
+﻿"lang"
+{
+"Language"	"french"
+"Tokens"
+{
+"ExampleAddon_Title"	"Exemple de dialogue interactif"
+"[english]ExampleAddon_Title"	"Example Interactive Dialog"
+"ExampleAddon_Desc"	"Ceci est un exemple de dialogue montrant comment ajouter des fonctionnalités à votre interface.\n\nEn cliquant sur le bouton ci-dessous, vous pouvez activer ou désactiver l'affichage du rover Curiosity."
+"[english]ExampleAddon_Desc"	"This is an example dialog that shows how you can attach functionality to your UI.\n\nClicking the button below, you can toggle the display of the Curiosity Rover."
+"ExampleAddon_ShowModel"	"Afficher le rover"
+"[english]ExampleAddon_ShowModel"	"Show Rover"
+"ExampleAddon_HideModel"	"Cacher le rover"
+"[english]ExampleAddon_HideModel"	"Hide Rover"
+"ExampleAddon_Welcome_Title"	"Exemple Destination"
+"[english]ExampleAddon_Welcome_Title"	"Example Destination"
+"ExampleAddon_Welcome_Desc"	"Ceci est un exemple d’addon Destinations que vous pouvez copier et modifier à loisir.\n\nVous vous trouvez dans une zone de téléportation, qui permet aux joueurs de se téléporter n’importe où dans l’enceinte. À la droite de votre position de départ se trouve un marqueur de téléportation. Lorsque vous vous téléportez là, vous entrerez dans un volume \\’déclencheur\\’ qui provoquera l’affichage d’une interface avec laquelle vous pouvez interagir."
+"[english]ExampleAddon_Welcome_Desc"	"This is an example Destinations addon you can copy and tinker with.\n\nYou are standing on a teleport area, which allows players to teleport anywhere inside the bounds.\n\nTo the right of where you started is a teleport marker. When you teleport there, you'll enter a \\'trigger\\' volume, which will display some UI that you can interact with."
+"ExampleAddon_Robot_Title"	"Exemple de volume déclencheur"
+"[english]ExampleAddon_Robot_Title"	"Example Trigger Volume"
+"ExampleAddon_Robot_Desc"	"Ce modèle robot utilise aussi un volume déclencheur qui peut être décrit comme une boite invisible entourant le modèle (représenté ici en mode fil de fer). Deux animations seront jouées sur le modèle robot, une première lorsque vous entrez dans le volume et une seconde quand vous le quittez."
+"[english]ExampleAddon_Robot_Desc"	"This robot model also uses a trigger volume, an invisible box that surrounds the model (represented here with an orange wireframe).  It will trigger two animations to play on the robot model, one when you enter the volume, and a second when you leave it."
+}
+}

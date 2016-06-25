@@ -1,0 +1,23 @@
+﻿"lang"
+{
+"Language"	"bulgarian"
+"Tokens"
+{
+"ExampleAddon_Title"	"Примерен интерактивен диалогов прозорец"
+"[english]ExampleAddon_Title"	"Example Interactive Dialog"
+"ExampleAddon_Desc"	"Това е примерен диалогов прозорец, който показва как да придадете функционалност на своя интерфейс.\n\nКликвайки на бутона по-долу, ще можете да превключвате изобразяването на марсохода Кюриосити."
+"[english]ExampleAddon_Desc"	"This is an example dialog that shows how you can attach functionality to your UI.\n\nClicking the button below, you can toggle the display of the Curiosity Rover."
+"ExampleAddon_ShowModel"	"Показване на марсохода"
+"[english]ExampleAddon_ShowModel"	"Show Rover"
+"ExampleAddon_HideModel"	"Скриване на марсохода"
+"[english]ExampleAddon_HideModel"	"Hide Rover"
+"ExampleAddon_Welcome_Title"	"Примерна дестинация"
+"[english]ExampleAddon_Welcome_Title"	"Example Destination"
+"ExampleAddon_Welcome_Desc"	"Това е примерна добавка за Destinations, която можете да копирате и бърникате.\n\nСтоите върху площ за телепортация. Тя позволява на играчите да се телепортират навсякъде из определените предели.\n\nВдясно от стартовата Ви позиция има маркер за телепортация. Щом се телепортирате там, ще влезете в „задействащ“ обем. Там ще бъде изобразен интерфейс, с който можете да взаимодействате."
+"[english]ExampleAddon_Welcome_Desc"	"This is an example Destinations addon you can copy and tinker with.\n\nYou are standing on a teleport area, which allows players to teleport anywhere inside the bounds.\n\nTo the right of where you started is a teleport marker. When you teleport there, you'll enter a \\'trigger\\' volume, which will display some UI that you can interact with."
+"ExampleAddon_Robot_Title"	"Примерен обем за задействане"
+"[english]ExampleAddon_Robot_Title"	"Example Trigger Volume"
+"ExampleAddon_Robot_Desc"	"Този модел на робот също използва обем за задействане — невидима кутия, която го обгражда (тук е изобразена като оранжева решетка). Тя ще задейства изпълняването на две анимации от модела на робота. Първата, когато влезете в обема, а втората, щом излезете от него."
+"[english]ExampleAddon_Robot_Desc"	"This robot model also uses a trigger volume, an invisible box that surrounds the model (represented here with an orange wireframe).  It will trigger two animations to play on the robot model, one when you enter the volume, and a second when you leave it."
+}
+}

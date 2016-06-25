@@ -1,0 +1,31 @@
+// THIS FILE IS AUTO-GENERATED
+
+Layer0
+{
+	shader "vr_standard.vfx"
+
+	//---- Specular ----
+	F_HIGH_QUALITY_GLOSS 1
+	F_SPECULAR 1
+	F_SPECULAR_CUBE_MAP 1 // In-game Cube Map
+
+	//---- Color ----
+	g_vColorTint "[1.000000 1.000000 1.000000 0.000000]"
+	g_vTexCoordOffset "[0.000 0.000]"
+	g_vTexCoordScale "[1.000 1.000]"
+	g_vTexCoordScrollSpeed "[0.000 0.000]"
+	TextureColor "[0.627451 0.647059 0.666667 0.000000]"
+
+	//---- Cube Map ----
+	g_flCubeMapBlurAmount "1.000"
+	g_flCubeMapScalar "1.000"
+
+	//---- Lighting ----
+	g_flMetalness "0.000"
+	g_vReflectanceRange "[0.000 1.000]"
+	TextureGlossiness "[0.400000 0.400000 0.400000 0.000000]"
+	TextureReflectance "[0.250000 0.250000 0.250000 0.000000]"
+
+	//---- Normal Map ----
+	TextureNormal "[0.501961 0.501961 1.000000 0.000000]"
+}
