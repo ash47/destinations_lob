@@ -80,7 +80,7 @@ print(b:test())]]
 local enemy = enemyController()
 
 enemy:init(function(controller)
-    controller.origin:SetOrigin(Entities:FindByName(nil, 'pathGenerationMarker'):GetOrigin())
+    controller.origin:SetOrigin(Entities:FindByName(nil, 'enemySpawnTest'):GetOrigin())
 
     local prop = Entities:CreateByClassname('prop_physics')
     prop:SetModel('models/enemy/test_enemy/test_enemy.vmdl')
