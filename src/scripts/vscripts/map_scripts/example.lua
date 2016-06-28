@@ -36,7 +36,21 @@ end
 -- Precaching
 function OnPrecache(context)
     -- Precache
+
+    -- Weapons and items
     context:AddResource('models/weapons/sword1/sword1.vmdl')
     context:AddResource('models/items/shield1/shield1.vmdl')
+
+    -- Misc
     context:AddResource('models/props_junk/watermelon01.vmdl')
+
+    -- Teleport stuff
+    context:AddResource('models/effects/teleport/teleport_destinations.vmdl')
+    context:AddResource('models/effects/teleport/teleport_info.vmdl')
+    context:AddResource('models/effects/teleport/teleport_lock.vmdl')
+    context:AddResource('models/effects/teleport/teleport_marker.vmdl')
+    context:AddResource('models/effects/teleport/teleport_move.vmdl')
+    context:AddResource('models/effects/teleport/teleport_switchscenes.vmdl')
+    context:AddResource('models/effects/teleport/vt_teleport_destination.vmdl')
+    context:AddResource('models/effects/teleport/vt_teleport_destination_0e0e9edf.vmdl')
 end

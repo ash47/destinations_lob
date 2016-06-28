@@ -46,7 +46,7 @@ function Gamemode:init(ply, hmd, hand0, hand1)
 end
 
 function Gamemode:physTest()
-    local ent = Entities:FindByName(nil, 'swordCol0')
+    --[[local ent = Entities:FindByName(nil, 'swordCol0')
 
     local scope = ent:GetOrCreatePrivateScriptScope()
     scope.OnStartTouch = function(args)
@@ -78,7 +78,7 @@ function Gamemode:physTest()
         print('on trigger!1')
     end
     ent:RedirectOutput('OnTrigger', 'OnTrigger', ent)
-    ent:RedirectOutput('OnStartTouch', 'OnStartTouch', ent)
+    ent:RedirectOutput('OnStartTouch', 'OnStartTouch', ent)]]
 
 
     --print(ent:GetModelName())
@@ -249,6 +249,21 @@ function Gamemode:spawnMelon(handID)
     ent:SetOrigin(hand:GetOrigin() + Vector(0, 0, 64))
 end
 
+-- Spawns a template and runs the callback with the new ent
+function Gamemode:spawnTemplateAndGrab(templateName, objectName, collisionName, callback)
+    local spawner = Entities:FindByName(nil, templateName)
+    DoEntFireByInstanceHandle(spawner, 'ForceSpawn', '', 0, nil, nil)
+
+    timers:setTimeout(function()
+        local mainObject = Entities:FindByName(nil, objectName)
+        local colObject = Entities:FindByName(nil, collisionName)
+
+        if callback then
+            callback(mainObject, colObject)
+        end
+    end, 0.1)
+end
+
 -- Init inventory system
 function Gamemode:initInventory()
     self.hand0Item = constants.item_nothing
@@ -325,11 +340,11 @@ function Gamemode:setHandItem(handID, itemID)
         return
     end
 
-    local cols = Entities:FindByName(nil, 'swordCol' .. handID)
+    --[[local cols = Entities:FindByName(nil, 'swordCol' .. handID)
     if cols then
         cols:SetParent(nil, '')
         cols:SetOrigin(Vector(10000,10000,10000))
-    end
+    end]]
 
     -- Destroy old item
     local oldItem = self['entityItem' .. handID]
@@ -339,36 +354,55 @@ function Gamemode:setHandItem(handID, itemID)
     end
 
     -- Create the new item
-    local item = self:createHandItem(itemID, handID)
+    self:createHandItem(itemID, handID, function(item, itemCol)
+        if item then
+            -- Store it
+            self['entityItem' .. handID] = item
 
-    if item then
-        -- Store it
-        self['entityItem' .. handID] = item
+            local angles = hand:GetAnglesAsVector()
 
-        local angles = hand:GetAnglesAsVector()
+            -- Attach
+            item:SetOrigin(hand:GetOrigin())
+            item:SetParent(hand, '')
+            item:SetAngles(angles.x, angles.y, angles.z)
+        end
 
-        -- Attach
-        item:SetOrigin(hand:GetOrigin())
-        item:SetParent(hand, '')
-        item:SetAngles(angles.x, angles.y, angles.z)
-    end
+        if itemCol then
+            print('Got a collision!')
+
+            local scope = itemCol:GetOrCreatePrivateScriptScope()
+            scope.OnStartTouch = function(args)
+                print('on touch!0')
+
+                local activator = args.activator
+
+                activator:RemoveSelf()
+            end
+
+            scope.OnTrigger = function(args)
+                print('on trigger!0')
+            end
+            itemCol:RedirectOutput('OnTrigger', 'OnTrigger', itemCol)
+            itemCol:RedirectOutput('OnStartTouch', 'OnStartTouch', itemCol)
+        end
+    end)
 
     -- Store the ID that is now in our hand
     self['hand' .. handID .. 'Item'] = itemID
 end
 
 -- Creates an instance of a given item
-function Gamemode:createHandItem(itemID, handID)
+function Gamemode:createHandItem(itemID, handID, callback)
     if itemID == constants.item_sword then
-        local ent = Entities:CreateByClassname('prop_physics')
-        ent:SetModel('models/weapons/sword1/sword1.vmdl')
+        --local ent = Entities:CreateByClassname('prop_physics')
+        --ent:SetModel('models/weapons/sword1/sword1.vmdl')
 
-        local cols = Entities:FindByName(nil, 'swordCol' .. handID)
+        --[[local cols = Entities:FindByName(nil, 'swordCol' .. handID)
         cols:SetOrigin(ent:GetOrigin())
         cols:SetParent(ent, '')
 
         local angles = ent:GetAnglesAsVector()
-        cols:SetAngles(angles.x, angles.y, angles.z)
+        cols:SetAngles(angles.x, angles.y, angles.z)]]
 
         --cols:SetModel('models/weapons/sword1/sword1.vmdl')
 
@@ -402,7 +436,9 @@ function Gamemode:createHandItem(itemID, handID)
         trigger:Trigger()
         DoEntFireByInstanceHandle(trigger, 'OnStartTouch', '11', 0, nil, nil)]]
 
-        return ent
+        --callback(ent)
+
+        self:spawnTemplateAndGrab('templateSword1', 'templateSword1_sword', 'templateSword1_trigger', callback)
     end
 
     if itemID == constants.item_shield then
@@ -410,7 +446,7 @@ function Gamemode:createHandItem(itemID, handID)
         ent:SetModel('models/items/shield1/shield1.vmdl')
         --ent:SetModel('models/props_junk/watermelon01.vmdl')
 
-        return ent
+        callback(ent)
     end
 end
 

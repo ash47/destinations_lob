@@ -25,3 +25,18 @@ local floor = Entities:FindByName(nil, 'testTeleport')
 
 floor:SetParent(ply, '')]]
 
+
+function spawnTemplateAndGrab(templateName, objectName, callback)
+    local spawner = Entities:FindByName(nil, templateName)
+    DoEntFireByInstanceHandle(spawner, 'ForceSpawn', '', 0, nil, nil)
+
+    timers:setTimeout(function()
+        local newEnt = Entities:FindByName(nil, objectName)
+
+        if callback and newEnt then
+            callback(newEnt)
+        end
+    end, 0.1)
+end
+
+
