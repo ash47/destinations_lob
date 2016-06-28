@@ -44,6 +44,9 @@ function OnPrecache(context)
     -- Misc
     context:AddResource('models/props_junk/watermelon01.vmdl')
 
+    -- Enemy
+    context:AddResource('models/enemy/test_enemy/test_enemy.vmdl')
+
     -- Teleport stuff
     context:AddResource('models/effects/teleport/teleport_destinations.vmdl')
     context:AddResource('models/effects/teleport/teleport_info.vmdl')

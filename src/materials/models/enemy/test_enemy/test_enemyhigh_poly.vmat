@@ -1,0 +1,5 @@
+"Layer0"
+{
+	"Shader"		"vr_standard.vfx"
+	"TextureColor"		"materials/models\enemy\test_enemy/test_enemyhigh_poly_color.png"
+}

@@ -368,8 +368,6 @@ function Gamemode:setHandItem(handID, itemID)
         end
 
         if itemCol then
-            print('Got a collision!')
-
             local scope = itemCol:GetOrCreatePrivateScriptScope()
             scope.OnStartTouch = function(args)
                 print('on touch!0')
