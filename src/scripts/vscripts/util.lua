@@ -5,7 +5,8 @@ function util:traceWorld(startPos, endPos)
     local data = {
         startpos = startPos,
         endpos = endPos,
-        mask = 131083
+        mask = 131083,
+
     }
     local res = TraceLine(data)
 
@@ -15,14 +16,21 @@ end
 -- Decides if we can move in a given direction
 function util:isSolid(startPos, dir)
     local endPos
-    if dir == 1 then
-        endPos = Vector(0, -128, 0)
-    elseif dir == 2 then
-        endPos = Vector(128, 0, 0)
-    elseif dir == 3 then
-        endPos = Vector(0, 128, 0)
+
+    if not dir or type(dir) == 'number' then
+        if dir == 1 then
+            endPos = Vector(0, -128, 0)
+        elseif dir == 2 then
+            endPos = Vector(128, 0, 0)
+        elseif dir == 3 then
+            endPos = Vector(0, 128, 0)
+        else
+            endPos = Vector(-128, 0, 0)
+        end
     else
-        endPos = Vector(-128, 0, 0)
+        endPos = dir
+
+        print('asd')
     end
 
     return self:traceWorld(startPos, startPos + endPos)

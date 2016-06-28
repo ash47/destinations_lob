@@ -97,3 +97,6 @@ enemy:init(function(controller)
         end)
     end)]]
 end)
+
+
+print(type(0))

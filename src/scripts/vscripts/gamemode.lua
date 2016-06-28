@@ -2,6 +2,7 @@
 local constants = require('constants')
 local timers = require('util.timers')
 local errorlib = require('util.errorlib')
+local util = require('util')
 
 -- Define the gamemode
 local Gamemode = {}
@@ -144,12 +145,48 @@ function Gamemode:generatePaths(currentPath)
 
     local middle = marker:GetOrigin()
 
-    -- Spawn new nodes
-    --table.insert(self.generatedNodes, self:generatePathNode(middle))
-    table.insert(self.generatedNodes, self:generatePathNode(middle + Vector(128, 0, 0)))
-    table.insert(self.generatedNodes, self:generatePathNode(middle + Vector(-128, 0, 0)))
-    table.insert(self.generatedNodes, self:generatePathNode(middle + Vector(0, 128, 0)))
-    table.insert(self.generatedNodes, self:generatePathNode(middle + Vector(0, -128, 0)))
+    local travelDistance = 64
+    local largeTravelDistance = 128
+
+    -- Tests a position and adds it if it's valid
+    local this = self
+    local testPos = function(pos)
+        if not util:isSolid(middle, pos) and not util:isSolid(middle, pos * 1.1) then
+            table.insert(this.generatedNodes, this:generatePathNode(middle + pos))
+
+            return true
+        end
+
+        return false
+    end
+
+    -- Spawn new nodes, inner circle
+    local canEast = testPos(Vector(travelDistance, 0, 0))
+    local canSouth = testPos(Vector(0, travelDistance, 0))
+    local canWest = testPos(Vector(-travelDistance, 0, 0))
+    local canNorth = testPos(Vector(0, -travelDistance, 0))
+
+    if canEast and canSouth then
+        testPos(Vector(travelDistance, travelDistance, 0))
+    end
+
+    if canWest and canSouth then
+        testPos(Vector(-travelDistance, travelDistance, 0))
+    end
+
+    if canWest and canNorth then
+        testPos(Vector(-travelDistance, -travelDistance, 0))
+    end
+
+    if canEast and canNorth then
+        testPos(Vector(travelDistance, -travelDistance, 0))
+    end
+
+    -- Spawn new nodes, outer nodes
+    testPos(Vector(-largeTravelDistance, 0, 0))
+    testPos(Vector(largeTravelDistance, 0, 0))
+    testPos(Vector(0, largeTravelDistance, 0))
+    testPos(Vector(0, -largeTravelDistance, 0))
 end
 
 function Gamemode:generatePathNode(pos)
