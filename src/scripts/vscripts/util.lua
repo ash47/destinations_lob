@@ -29,8 +29,6 @@ function util:isSolid(startPos, dir)
         end
     else
         endPos = dir
-
-        print('asd')
     end
 
     return self:traceWorld(startPos, startPos + endPos)
