@@ -151,7 +151,7 @@ function Gamemode:generatePaths(currentPath)
     -- Tests a position and adds it if it's valid
     local this = self
     local testPos = function(pos)
-        local upPos = middle + Vector(0, 0, 90)
+        local upPos = middle + Vector(0, 0, 64)
         if not util:isSolid(upPos, pos) and not util:isSolid(upPos, pos * 1.1) then
             table.insert(this.generatedNodes, this:generatePathNode(middle + pos))
 
