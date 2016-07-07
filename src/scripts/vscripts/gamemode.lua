@@ -686,7 +686,8 @@ function Gamemode:createSliderMonster(origin, angles, callback)
             end
 
             -- Start the movement sound
-            DoEntFireByInstanceHandle(templateMoveSound, 'StartSound', '', 0, nil, nil)
+            DoEntFireByInstanceHandle(templateMoveSound, 'StopSound', '', 0, nil, nil)
+            DoEntFireByInstanceHandle(templateMoveSound, 'StartSound', '', 0.01, nil, nil)
 
             -- Disable triggers
             DoEntFireByInstanceHandle(rightTrigger, 'Disable', '', 0, nil, nil)
@@ -710,12 +711,12 @@ function Gamemode:createSliderMonster(origin, angles, callback)
         end
 
         -- Start forward
-        DoEntFireByInstanceHandle(train, 'SetSpeed', '0.1', 0, nil, nil)
+        DoEntFireByInstanceHandle(train, 'SetSpeed', '1', 0, nil, nil)
         DoEntFireByInstanceHandle(train, 'StartForward', '', 0, nil, nil)
 
         -- Reset
-        DoEntFireByInstanceHandle(train, 'SetSpeed', '0.2', 0.01, nil, nil)
-        DoEntFireByInstanceHandle(train, 'StartBackward', '', 0.01, nil, nil)
+        DoEntFireByInstanceHandle(train, 'SetSpeed', '0.2', 0.1, nil, nil)
+        DoEntFireByInstanceHandle(train, 'StartBackward', '', 0.1, nil, nil)
 
         if callback then
             callback()
