@@ -12,7 +12,7 @@ Layer0
 	g_vTexCoordOffset "[0.000 0.000]"
 	g_vTexCoordScale "[1.000 1.000]"
 	g_vTexCoordScrollSpeed "[0.000 0.000]"
-	TextureColor "materials/textures/concrete/concretewall046i.tga"
+	TextureColor "materials/textures/plaster/plasterwall003a.tga"
 
 	//---- Lighting ----
 	g_flIndirectScale "1.000"

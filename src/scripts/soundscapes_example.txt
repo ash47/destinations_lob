@@ -1,6 +1,6 @@
 // Example Soundscapes can go here
 
-// "soundscape_test" 
+// "soundscape_test"
 // {
 	// "playlooping"
 	// {
@@ -13,4 +13,14 @@
 // }
 
 
-	
+"doors_door_metal_thin_close2"
+{
+    "playlooping"
+    {
+        "volume"     "1"
+        "pitch"          "100"
+        "soundlevel"     "SNDLVL_60dB"
+        "position"   "0"
+        "wave"           "sounds/doors/door_metal_thin_close2.wav"
+    }
+}

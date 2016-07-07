@@ -4,6 +4,14 @@ Layer0
 {
 	shader "vr_standard.vfx"
 
+	//---- Lighting ----
+	F_INDIRECT_TEXTURES 1
+
+	//---- Specular ----
+	F_SPECULAR 1
+	F_SPECULAR_CUBE_MAP 1 // In-game Cube Map
+	F_SPECULAR_CUBE_MAP_PROJECTION 1
+
 	//---- Color ----
 	g_vColorTint "[1.000000 1.000000 1.000000 0.000000]"
 	g_vTexCoordOffset "[0.000 0.000]"
@@ -11,8 +19,17 @@ Layer0
 	g_vTexCoordScrollSpeed "[0.000 0.000]"
 	TextureColor "materials/textures/tile/tilefloor021a.tga"
 
+	//---- Cube Map ----
+	g_flCubeMapBlurAmount "1.000"
+
 	//---- Lighting ----
+	g_flIndirectScale "1.000"
+	g_flMetalness "0.000"
+	g_vReflectanceRange "[0.000 1.000]"
+	TextureAmbientOcclusion "[1.000000 1.000000 1.000000 0.000000]"
 	TextureGlossiness "materials/default/default_gloss.tga"
+	TextureIndirectLight "[0.039216 0.039216 0.039216 0.000000]"
+	TextureReflectance "materials/default/default_refl.tga"
 
 	//---- Normal Map ----
 	TextureNormal "materials/textures/tile/tilefloor021a_normal.tga"

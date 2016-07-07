@@ -72,6 +72,7 @@ mklink /D /J "loz\content\materials" "src\materials"
 mklink /D /J "loz\content\models" "src\models"
 mklink /D /J "loz\content\particles" "src\particles"
 mklink /D /J "loz\content\soundevents" "src\soundevents"
+mklink /D /J "loz\content\sounds" "src\sounds"
 
 :: Hard link maps
 ::mklink /H "dota\game\maps\dota_pvp.vpk" "maps\dota_pvp.vpk"
