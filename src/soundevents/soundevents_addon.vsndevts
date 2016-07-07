@@ -26,4 +26,22 @@
         delay = 0.0
         vsnd_files = "sounds/doors/drawbridge_stop1.vsnd"
     }
+
+    doors.vent_open1 =
+    {
+        type = "destinations.simple_2d"
+        volume = 1.0
+        pitch = 1.0
+        delay = 0.0
+        vsnd_files = "sounds/doors/vent_open1.vsnd"
+    }
+
+    vehicles.digger_grinder_loop1 =
+    {
+        type = "destinations.simple_2d"
+        volume = 1.0
+        pitch = 1.0
+        delay = 0.0
+        vsnd_files = "sounds/vehicles/digger_grinder_loop1.vsnd"
+    }
 }

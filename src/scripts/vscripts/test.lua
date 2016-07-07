@@ -202,3 +202,22 @@ function spawnAllDoors()
 end
 
 spawnAllDoors()]]
+
+function createSliderMonster()
+    local templateName = 'scary_monster_template'
+    local templateCornerName = 'scary_monster_corner'
+    local templateRightTrigger = 'scary_monster_right_trigger'
+    local templateDownTrigger = 'scary_monster_down_trigger'
+
+
+end
+
+
+--[[local monster = Entities:FindByName(nil, 'scary_monster_train')
+local monsterCorner = Entities:FindByName(nil, 'scary_monster_corner')
+
+--DoEntFireByInstanceHandle(monsterCorner, 'EnableAlternatePath', '', 0, nil, nil)
+DoEntFireByInstanceHandle(monsterCorner, 'DisableAlternatePath', '', 0, nil, nil)
+
+DoEntFireByInstanceHandle(monster, 'SetSpeed', '1', 0, nil, nil)
+DoEntFireByInstanceHandle(monster, 'StartForward', '', 0, nil, nil)]]

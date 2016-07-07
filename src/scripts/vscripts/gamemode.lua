@@ -32,6 +32,9 @@ function Gamemode:init(ply, hmd, hand0, hand1)
     -- Init doors
     self:spawnAllDoors()
 
+    -- Init slider monsters
+    self:spawnAllSliderMonsters()
+
     -- Generate paths
     self:generatePaths()
 
@@ -602,7 +605,6 @@ function Gamemode:spawnAllDoors()
     local spawnNextDoor
 
     local this = self
-
     spawnNextDoor = function()
         if #doorSpawners > 0 then
             local doorLocation = table.remove(doorSpawners, 1)
@@ -617,6 +619,129 @@ function Gamemode:spawnAllDoors()
 
     -- Start spawning
     spawnNextDoor()
+end
+
+function Gamemode:createSliderMonster(origin, angles, callback)
+    local templateName = 'scary_monster_template'
+    local templateCornerName = 'scary_monster_corner'
+    local templateRightTrigger = 'scary_monster_right_trigger'
+    local templateDownTrigger = 'scary_monster_down_trigger'
+    local templateTrainName = 'scary_monster_train'
+    local templateOriginName = 'scary_monster_origin'
+    local templateStartName = 'scary_monster_start'
+    local templateMoveSoundName = 'scary_monster_sound_move'
+
+    -- Spawn a new door
+    local spawner = Entities:FindByName(nil, templateName)
+    DoEntFireByInstanceHandle(spawner, 'ForceSpawn', '', 0, nil, nil)
+
+    local this = self
+
+    -- Grab it after a short delay
+    timers:setTimeout(function()
+        -- Grab door parts
+        local corner = Entities:FindByName(nil, templateCornerName)
+        local rightTrigger = Entities:FindByName(nil, templateRightTrigger)
+        local downTrigger = Entities:FindByName(nil, templateDownTrigger)
+        local train = Entities:FindByName(nil, templateTrainName)
+        local templateOrigin = Entities:FindByName(nil, templateOriginName)
+        local templateStart = Entities:FindByName(nil, templateStartName)
+        local templateMoveSound = Entities:FindByName(nil, templateMoveSoundName)
+
+        -- Hook the right trigger
+        local scope = rightTrigger:GetOrCreatePrivateScriptScope()
+        scope.OnStartTouch = function(args)
+            -- Change the direction to move in
+            if IsValidEntity(corner) then
+                DoEntFireByInstanceHandle(corner, 'DisableAlternatePath', '', 0, nil, nil)
+            end
+
+            -- Start moving
+            if IsValidEntity(train) then
+                DoEntFireByInstanceHandle(train, 'SetSpeed', '1', 0, nil, nil)
+                DoEntFireByInstanceHandle(train, 'StartForward', '', 0, nil, nil)
+            end
+
+            -- Start the movement sound
+            DoEntFireByInstanceHandle(templateMoveSound, 'StartSound', '', 0, nil, nil)
+
+            -- Disable triggers
+            DoEntFireByInstanceHandle(rightTrigger, 'Disable', '', 0, nil, nil)
+            DoEntFireByInstanceHandle(downTrigger, 'Disable', '', 0, nil, nil)
+        end
+        rightTrigger:RedirectOutput('OnStartTouch', 'OnStartTouch', rightTrigger)
+
+        -- Hook the down trigger
+        local scope = downTrigger:GetOrCreatePrivateScriptScope()
+        scope.OnStartTouch = function(args)
+            -- Change the direction to move in
+            if IsValidEntity(corner) then
+                DoEntFireByInstanceHandle(corner, 'EnableAlternatePath', '', 0, nil, nil)
+            end
+
+            -- Start moving
+            if IsValidEntity(train) then
+                DoEntFireByInstanceHandle(train, 'SetSpeed', '1', 0, nil, nil)
+                DoEntFireByInstanceHandle(train, 'StartForward', '', 0, nil, nil)
+            end
+
+            -- Start the movement sound
+            DoEntFireByInstanceHandle(templateMoveSound, 'StartSound', '', 0, nil, nil)
+
+            -- Disable triggers
+            DoEntFireByInstanceHandle(rightTrigger, 'Disable', '', 0, nil, nil)
+            DoEntFireByInstanceHandle(downTrigger, 'Disable', '', 0, nil, nil)
+        end
+        downTrigger:RedirectOutput('OnStartTouch', 'OnStartTouch', downTrigger)
+
+        -- Hook re-enabling the triggers
+        local scope = templateStart:GetOrCreatePrivateScriptScope()
+        scope.OnPass = function(args)
+            -- Disable triggers
+            DoEntFireByInstanceHandle(rightTrigger, 'Enable', '', 0, nil, nil)
+            DoEntFireByInstanceHandle(downTrigger, 'Enable', '', 0, nil, nil)
+        end
+        templateStart:RedirectOutput('OnPass', 'OnPass', templateStart)
+
+        -- Move into position
+        if IsValidEntity(templateOrigin) then
+            templateOrigin:SetOrigin(origin)
+            templateOrigin:SetAngles(angles.x, angles.y, angles.z)
+        end
+
+        -- Start forward
+        DoEntFireByInstanceHandle(train, 'SetSpeed', '0.1', 0, nil, nil)
+        DoEntFireByInstanceHandle(train, 'StartForward', '', 0, nil, nil)
+
+        -- Reset
+        DoEntFireByInstanceHandle(train, 'SetSpeed', '0.2', 0.01, nil, nil)
+        DoEntFireByInstanceHandle(train, 'StartBackward', '', 0.01, nil, nil)
+
+        if callback then
+            callback()
+        end
+    end, 0.1)
+end
+
+function Gamemode:spawnAllSliderMonsters()
+    local sliderSpawners = Entities:FindAllByName('spawnSliderMonsterHere')
+
+    local nextSpawnCallback
+    local this = self
+    nextSpawnCallback = function()
+        if #sliderSpawners > 0 then
+            local spawnLocation = table.remove(sliderSpawners, 1)
+
+            if IsValidEntity(spawnLocation) then
+                this:createSliderMonster(spawnLocation:GetOrigin(), spawnLocation:GetAnglesAsVector(), nextSpawnCallback)
+            else
+                nextSpawnCallback()
+            end
+        end
+    end
+
+    -- Start spawning
+    nextSpawnCallback()
 end
 
 -- Export the gamemode
