@@ -291,16 +291,18 @@ function Gamemode:spawnMelon(handID)
 end
 
 -- Spawns a template and runs the callback with the new ent
-function Gamemode:spawnTemplateAndGrab(templateName, objectName, collisionName, callback)
+function Gamemode:spawnTemplateAndGrab(templateName, parts, callback)
     local spawner = Entities:FindByName(nil, templateName)
     DoEntFireByInstanceHandle(spawner, 'ForceSpawn', '', 0, nil, nil)
 
     timers:setTimeout(function()
-        local mainObject = Entities:FindByName(nil, objectName)
-        local colObject = Entities:FindByName(nil, collisionName)
+        local partList = {}
+        for _,partName in pairs(parts) do
+            partList[_] = Entities:FindByName(nil, partName)
+        end
 
         if callback then
-            callback(mainObject, colObject)
+            callback(partList)
         end
     end, 0.1)
 end
@@ -314,7 +316,8 @@ function Gamemode:initInventory()
     self.itemOrderList = {
         [1] = constants.item_nothing,
         [2] = constants.item_sword,
-        [3] = constants.item_shield
+        [3] = constants.item_shield,
+        [4] = constants.item_key
     }
 
     -- Define the reverse lookup table
@@ -395,17 +398,17 @@ function Gamemode:setHandItem(handID, itemID)
     end
 
     -- Create the new item
-    self:createHandItem(itemID, handID, function(item, itemCol)
-        if item then
+    self:createHandItem(itemID, handID, function(itemOrigin, itemCol)
+        if itemOrigin then
             -- Store it
-            self['entityItem' .. handID] = item
+            self['entityItem' .. handID] = itemOrigin
 
             local angles = hand:GetAnglesAsVector()
 
             -- Attach
-            item:SetOrigin(hand:GetOrigin())
-            item:SetParent(hand, '')
-            item:SetAngles(angles.x, angles.y, angles.z)
+            itemOrigin:SetOrigin(hand:GetOrigin())
+            itemOrigin:SetParent(hand, '')
+            itemOrigin:SetAngles(angles.x, angles.y, angles.z)
         end
 
         if itemCol then
@@ -477,7 +480,22 @@ function Gamemode:createHandItem(itemID, handID, callback)
 
         --callback(ent)
 
-        self:spawnTemplateAndGrab('templateSword1', 'templateSword1_sword', 'templateSword1_trigger', callback)
+        self:spawnTemplateAndGrab('templateSword1', {
+            model = 'templateSword1_sword',
+            trigger = 'templateSword1_trigger'
+        }, function(parts)
+            callback(parts.model, parts.trigger)
+        end)
+    end
+
+    if itemID == constants.item_key then
+        self:spawnTemplateAndGrab('item_key_template', {
+            origin = 'item_key_origin',
+            model = 'item_key_model'
+        }, function(parts)
+            parts.model.isDoorKey = true
+            callback(parts.origin)
+        end)
     end
 
     if itemID == constants.item_shield then
@@ -486,6 +504,15 @@ function Gamemode:createHandItem(itemID, handID, callback)
         --ent:SetModel('models/props_junk/watermelon01.vmdl')
 
         callback(ent)
+    end
+end
+
+-- When a key is used
+function Gamemode:onKeyUsed()
+    for handID=0,1 do
+        if self['hand' .. handID .. 'Item'] == constants.item_key then
+            self:setHandItem(handID, constants.item_nothing)
+        end
     end
 end
 
@@ -506,6 +533,8 @@ function Gamemode:createDoor(origin, angles, callback)
     local spawner = Entities:FindByName(nil, doorTemplateName)
     DoEntFireByInstanceHandle(spawner, 'ForceSpawn', '', 0, nil, nil)
 
+    local this = self
+
     -- Grab it after a short delay
     timers:setTimeout(function()
         -- Grab door parts
@@ -523,19 +552,15 @@ function Gamemode:createDoor(origin, angles, callback)
 
         -- Hook the trigger
         local scope = doorTrigger:GetOrCreatePrivateScriptScope()
-        scope.OnTrigger = function(args)
+        scope.OnStartTouch = function(args)
             -- Check what just collided
             local activator = args.activator
 
-            if activator then
-                print(activator:GetClassname())
-            end
+            if not activator or not activator.isDoorKey then return end
 
             -- Only open once
             if isDoorOpen then return end
             isDoorOpen = true
-
-            print('Yes!')
 
             -- Play the sound
             if IsValidEntity(doorSound) then
@@ -553,8 +578,11 @@ function Gamemode:createDoor(origin, angles, callback)
                     DoEntFireByInstanceHandle(doorPart, 'Open', '', 0.25, nil, nil)
                 end
             end
+
+            -- The key has now been used
+            this:onKeyUsed()
         end
-        doorTrigger:RedirectOutput('OnTrigger', 'OnTrigger', doorTrigger)
+        doorTrigger:RedirectOutput('OnStartTouch', 'OnStartTouch', doorTrigger)
 
         -- Move into position
         if IsValidEntity(doorOrigin) then
