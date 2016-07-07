@@ -29,6 +29,9 @@ function Gamemode:init(ply, hmd, hand0, hand1)
     -- Init Inventory
     self:initInventory()
 
+    -- Init doors
+    self:spawnAllDoors()
+
     -- Generate paths
     self:generatePaths()
 
@@ -484,6 +487,108 @@ function Gamemode:createHandItem(itemID, handID, callback)
 
         callback(ent)
     end
+end
+
+function Gamemode:createDoor(origin, angles, callback)
+    local doorTemplateName = 'door_1_template'
+    local doorPartsName = {
+        [1] = 'door_1_door_a',
+        [2] = 'door_1_door_b',
+        [3] = 'door_1_door_c',
+        [4] = 'door_1_door_d'
+    }
+    local doorOriginName = 'door_1_origin'
+    local doorTriggerName = 'door_1_trigger'
+    local doorLockName = 'door_1_lock'
+    local doorSoundName = 'door_1_sound'
+
+    -- Spawn a new door
+    local spawner = Entities:FindByName(nil, doorTemplateName)
+    DoEntFireByInstanceHandle(spawner, 'ForceSpawn', '', 0, nil, nil)
+
+    -- Grab it after a short delay
+    timers:setTimeout(function()
+        -- Grab door parts
+        local doorOrigin = Entities:FindByName(nil, doorOriginName)
+        local doorTrigger = Entities:FindByName(nil, doorTriggerName)
+        local doorLock = Entities:FindByName(nil, doorLockName)
+        local doorSound = Entities:FindByName(nil, doorSoundName)
+
+        local doorParts = {}
+        for _,doorPartName in pairs(doorPartsName) do
+            table.insert(doorParts, Entities:FindByName(nil, doorPartName))
+        end
+
+        local isDoorOpen = false
+
+        -- Hook the trigger
+        local scope = doorTrigger:GetOrCreatePrivateScriptScope()
+        scope.OnTrigger = function(args)
+            -- Check what just collided
+            local activator = args.activator
+
+            if activator then
+                print(activator:GetClassname())
+            end
+
+            -- Only open once
+            if isDoorOpen then return end
+            isDoorOpen = true
+
+            print('Yes!')
+
+            -- Play the sound
+            if IsValidEntity(doorSound) then
+                DoEntFireByInstanceHandle(doorSound, 'StartSound', '', 0, nil, nil)
+            end
+
+            -- Hide the lock
+            if IsValidEntity(doorLock) then
+                DoEntFireByInstanceHandle(doorLock, 'Disable', '', 0, nil, nil)
+            end
+
+            for _,doorPart in pairs(doorParts) do
+                -- Open the doors
+                if IsValidEntity(doorPart) then
+                    DoEntFireByInstanceHandle(doorPart, 'Open', '', 0.25, nil, nil)
+                end
+            end
+        end
+        doorTrigger:RedirectOutput('OnTrigger', 'OnTrigger', doorTrigger)
+
+        -- Move into position
+        if IsValidEntity(doorOrigin) then
+            doorOrigin:SetOrigin(origin)
+            doorOrigin:SetAngles(angles.x, angles.y, angles.z)
+        end
+
+        if callback then
+            callback()
+        end
+    end, 0.1)
+end
+
+function Gamemode:spawnAllDoors()
+    local doorSpawners = Entities:FindAllByName('spawn_door_here')
+
+    local spawnNextDoor
+
+    local this = self
+
+    spawnNextDoor = function()
+        if #doorSpawners > 0 then
+            local doorLocation = table.remove(doorSpawners, 1)
+
+            if IsValidEntity(doorLocation) then
+                this:createDoor(doorLocation:GetOrigin(), doorLocation:GetAnglesAsVector(), spawnNextDoor)
+            else
+                spawnNextDoor()
+            end
+        end
+    end
+
+    -- Start spawning
+    spawnNextDoor()
 end
 
 -- Export the gamemode
