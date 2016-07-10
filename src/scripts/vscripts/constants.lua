@@ -21,6 +21,7 @@ Constants.item_key = 4
 Constants.item_bow = 5
 Constants.item_boomerang = 6
 Constants.item_bomb = 7
+Constants.item_map = 8
 
 -- Rewards
 Constants.reward_key = 1

@@ -395,7 +395,8 @@ function Gamemode:initInventory()
         [4] = constants.item_key,
         [5] = constants.item_bow,
         [6] = constants.item_boomerang,
-        [7] = constants.item_bomb
+        [7] = constants.item_bomb,
+        [8] = constants.item_map
     }
 
     -- Define the reverse lookup table
@@ -550,6 +551,16 @@ function Gamemode:createHandItem(itemID, handID, callback)
             model = 'item_boomerang_model',
             origin = 'item_boomerang_origin'
         }, function(parts)
+            callback(parts.origin, parts)
+        end)
+    end
+
+    if itemID == constants.item_map then
+        util:spawnTemplateAndGrab('template_map_template', {
+            model = 'template_map_map',
+            origin = 'template_map_origin'
+        }, function(parts)
+            parts.model:SetParent(parts.origin, '')
             callback(parts.origin, parts)
         end)
     end
