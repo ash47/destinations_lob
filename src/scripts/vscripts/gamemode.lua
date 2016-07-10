@@ -668,6 +668,12 @@ function Gamemode:spawnAllDoors()
 
     -- Start spawning
     spawnNextDoor()
+
+    -- Hook breakable walls
+    local ents = Entities:FindAllByName('breakable_wall')
+    for _,ent in pairs(ents) do
+        ent.breakOnExplode = true
+    end
 end
 
 function Gamemode:createSliderMonster(origin, angles, callback)
@@ -1030,10 +1036,27 @@ function Gamemode:createExplosion(origin)
     util:spawnTemplateAndGrab('explosion_sample_template', {
             explosion = 'explosion_sample'
         }, function(parts)
+            -- Create the explosion
             local explosion = parts.explosion
             explosion:SetOrigin(origin)
             DoEntFireByInstanceHandle(explosion, 'Explode', '', 0, nil, nil)
 
+            -- Find stuff to cause damage to
+            local ents = Entities:FindAllInSphere(origin, 64)
+            for _,ent in pairs(ents) do
+                -- Do they have an onHit callback?
+                if ent.enemy then
+                    if ent.enemy.onHit then
+                        ent.enemy:onHit()
+                    end
+                end
+
+                if ent.breakOnExplode then
+                    DoEntFireByInstanceHandle(ent, 'Break', '', 0, nil, nil)
+                end
+            end
+
+            -- Remove the explosion ent after a delay
             timers:setTimeout(function()
                 if IsValidEntity(explosion) then
                     explosion:RemoveSelf()
