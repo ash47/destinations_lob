@@ -426,6 +426,12 @@ function Gamemode:initInventory()
         self.reverseItemOrder[itemID] = posNum
     end
 
+    -- Defines items that can only be in one hand at a time
+    self.onlyOneCopy = {
+        [constants.item_key] = true,
+        [constants.item_map] = true
+    }
+
     -- Defines which items we actually own
     self.myItems = {}
 
@@ -456,8 +462,14 @@ function Gamemode:handGotoNextItem(handID)
         tempItemID = self.itemOrderList[nextItemID]
         if tempItemID then
             if self.myItems[tempItemID] then
-                -- Found the next item
-                break
+                -- is this item only allowed to be in one hand at a time?
+                if self.onlyOneCopy[tempItemID] and (self.hand0Item == tempItemID or self.hand1Item == tempItemID) then
+                    -- item is already in one of our hands :/
+                    nextItemID = nextItemID + 1
+                else
+                    -- Found the next item
+                    break
+                end
             else
                 nextItemID = nextItemID + 1
             end
@@ -580,10 +592,16 @@ function Gamemode:createHandItem(itemID, handID, callback)
     if itemID == constants.item_map then
         util:spawnTemplateAndGrab('template_map_template', {
             model = 'template_map_map',
-            origin = 'template_map_origin'
+            origin = 'template_map_origin',
+            origin2 = 'template_map_origin2'
         }, function(parts)
-            parts.model:SetParent(parts.origin, '')
-            callback(parts.origin, parts)
+            local attachTo = parts.origin
+            if handID == 1 then
+                attachTo = parts.origin2
+            end
+
+            parts.model:SetParent(attachTo, '')
+            callback(attachTo, parts)
         end)
     end
 
