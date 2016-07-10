@@ -304,6 +304,8 @@ function Gamemode:onTriggerPressed(handID, buttonID)
         return
     end
 
+    local this = self
+
     local angs = hand:GetAnglesAsVector()
 
     local pitchDegree = angs.x
@@ -318,7 +320,9 @@ function Gamemode:onTriggerPressed(handID, buttonID)
         -math.sin(pitch)
     )
 
-    if self['hand' .. handID .. 'Item'] == constants.item_boomerang then
+    local handItem = self['hand' .. handID .. 'Item']
+
+    if handItem == constants.item_boomerang then
         local ent = Entities:CreateByClassname('prop_physics')
         ent:SetModel('models/props/boomerang/boomerang.vmdl')
         ent:SetOrigin(hand:GetOrigin())
@@ -328,13 +332,36 @@ function Gamemode:onTriggerPressed(handID, buttonID)
         local handParts = self['entityParts' .. handID] or {}
         local partModel = handParts.model
 
-        if partModel then
+        if IsValidEntity(partModel) then
             local modelAngles = partModel:GetAnglesAsVector()
             ent:SetAngles(modelAngles.x, modelAngles.y, modelAngles.z)
         end
 
         timers:setTimeout(function()
             if IsValidEntity(ent) then
+                ent:RemoveSelf()
+            end
+        end, 2)
+    end
+
+    if handItem == constants.item_bomb then
+        local ent = Entities:CreateByClassname('prop_physics')
+        ent:SetModel('models/props/boomerang/boomerang.vmdl')
+        ent:SetOrigin(hand:GetOrigin())
+        ent:SetModelScale(0.1218)
+        ent:ApplyAbsVelocityImpulse(newVec * 250)
+
+        local handParts = self['entityParts' .. handID] or {}
+        local partModel = handParts.model
+
+        if IsValidEntity(partModel) then
+            local modelAngles = partModel:GetAnglesAsVector()
+            ent:SetAngles(modelAngles.x, modelAngles.y, modelAngles.z)
+        end
+
+        timers:setTimeout(function()
+            if IsValidEntity(ent) then
+                this:createExplosion(ent:GetOrigin())
                 ent:RemoveSelf()
             end
         end, 2)
@@ -367,7 +394,8 @@ function Gamemode:initInventory()
         [3] = constants.item_shield,
         [4] = constants.item_key,
         [5] = constants.item_bow,
-        [6] = constants.item_boomerang
+        [6] = constants.item_boomerang,
+        [7] = constants.item_bomb
     }
 
     -- Define the reverse lookup table
@@ -446,6 +474,9 @@ function Gamemode:setHandItem(handID, itemID)
         oldItem:RemoveSelf()
         self['entityItem' .. handID] = nil
     end
+
+    -- Remove references to parts
+    self['entityParts' .. handID] = {}
 
     -- Create the new item
     self:createHandItem(itemID, handID, function(itemOrigin, parts)
@@ -992,6 +1023,23 @@ function Gamemode:spawnRoom(options)
 
     -- Start spawning mobs
     spawnNextMob()
+end
+
+-- Creates an explosion at the given point
+function Gamemode:createExplosion(origin)
+    util:spawnTemplateAndGrab('explosion_sample_template', {
+            explosion = 'explosion_sample'
+        }, function(parts)
+            local explosion = parts.explosion
+            explosion:SetOrigin(origin)
+            DoEntFireByInstanceHandle(explosion, 'Explode', '', 0, nil, nil)
+
+            timers:setTimeout(function()
+                if IsValidEntity(explosion) then
+                    explosion:RemoveSelf()
+                end
+            end, 5)
+        end)
 end
 
 -- Export the gamemode
