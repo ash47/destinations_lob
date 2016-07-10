@@ -156,12 +156,17 @@ function enemyController:onHit()
     self.hp = self.hp - 1
 
     if self.hp <= 0 then
+        local deathOrigin = self.attachTo:GetOrigin()
+
         -- Kill self
         self.dead = true
         self.origin:RemoveSelf()
 
         -- Run any callbacks
-        self:runCallback('onDie')
+        self:runCallback('onDie', {
+            unit = self,
+            deathOrigin = deathOrigin
+        })
 
         return
     end

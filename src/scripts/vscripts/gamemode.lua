@@ -1036,17 +1036,15 @@ function Gamemode:spawnRoom(options)
                 totalEnemiesAlive = totalEnemiesAlive + 1
             end
 
-            controller:addCallback('onDie', function()
+            controller:addCallback('onDie', function(info)
                 if needsKilling then
                     totalEnemiesAlive = totalEnemiesAlive - 1
 
                     if totalEnemiesAlive == 0 then
-                        print('room complete')
-
                         local theReward = options.reward
 
                         if theReward == constants.reward_key then
-                            print('Give key!')
+                            this:createKey(info.deathOrigin + Vector(0, 0, 64))
                         end
                     end
                 end
@@ -1096,6 +1094,45 @@ function Gamemode:createExplosion(origin)
                 end
             end, 5)
         end)
+end
+
+-- Creates a key at the given position
+function Gamemode:createKey(spawnOrigin)
+    local this = self
+
+    util:spawnTemplateAndGrab('prop_key_template', {
+        model = 'prop_key',
+        trigger = 'prop_key_trigger'
+    }, function(parts)
+        print('hi')
+
+        local ent = parts.model
+
+        ent:SetOrigin(spawnOrigin)
+
+        local itemCol = parts.trigger
+
+        if itemCol then
+            local scope = itemCol:GetOrCreatePrivateScriptScope()
+            scope.OnStartTouch = function(args)
+                local activator = args.activator
+
+                -- Player
+                if activator:GetClassname() == 'player' then
+                    -- Collect key
+                    this:onCollectKey(ent)
+                end
+            end
+            itemCol:RedirectOutput('OnStartTouch', 'OnStartTouch', itemCol)
+        end
+    end)
+end
+
+-- Called when we collect a key
+function Gamemode:onCollectKey(ent)
+    if IsValidEntity(ent) then
+        ent:RemoveSelf()
+    end
 end
 
 -- Export the gamemode
