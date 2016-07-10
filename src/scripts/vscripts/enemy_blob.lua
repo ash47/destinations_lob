@@ -5,9 +5,9 @@ local util = require('util')
 local enemyController = require('enemy_controller')
 
 -- Define a new class
-local enemyBird = class(enemyController)
+local enemyBlob = class(enemyController)
 
-function enemyBird:subInit(callback)
+function enemyBlob:subInit(callback)
     local this = self
 
     -- Only two hits to kill this guy
@@ -31,5 +31,12 @@ function enemyBird:subInit(callback)
     end)
 end
 
+function enemyBlob:onReady()
+    -- Start moving
+    self:doMovement({
+        delay = 3
+    })
+end
+
 -- Return the new enemy
-return enemyBird
+return enemyBlob

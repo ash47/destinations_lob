@@ -4,7 +4,7 @@ local timers = require('util.timers')
 local errorlib = require('util.errorlib')
 local util = require('util')
 
-local enemyBird = require('enemy_bird')
+local enemyBlob = require('enemy_blob')
 
 -- Define the gamemode
 local Gamemode = {}
@@ -735,42 +735,233 @@ end
 
 -- Init rooms
 function Gamemode:spawnMobs()
-    --[[
-        Bird room 1
-    ]]
-    local spawnPos = Entities:FindByName(nil, 'marker_bird_room'):GetOrigin()
+    -- Backlog of rooms to spawn
+    self.spawningRoomBackLog = {}
 
-    local birdsLeft = 3
-    local birdsLeftToSpawn = birdsLeft
+    -- 1: Left bat room
+    self:spawnRoom({
+        spawnPos = Entities:FindByName(nil, 'spawn_room_left_1'):GetOrigin(),
+        enemies = {
+            bats = {
+                count = 3,
+                createEnemy = enemyBlob,
+                needsKilling = true
+            }
+        },
+        reward = constants.reward_key
+    })
 
-    function spawnNextBird()
-        if birdsLeftToSpawn <= 0 then return end
-        birdsLeftToSpawn = birdsLeftToSpawn - 1
+    -- 1: Right skel room
+    self:spawnRoom({
+        spawnPos = Entities:FindByName(nil, 'spawn_room_right_1'):GetOrigin(),
+        enemies = {
+            skels = {
+                count = 5,
+                createEnemy = enemyBlob,
+                needsKilling = true
+            }
+        },
+        reward = constants.reward_key
+    })
 
-        local enemy = enemyBird()
+    -- 2: Mid skel room
+    self:spawnRoom({
+        spawnPos = Entities:FindByName(nil, 'spawn_room_mid_2'):GetOrigin(),
+        enemies = {
+            skels = {
+                count = 3,
+                createEnemy = enemyBlob,
+                needsKilling = true
+            }
+        }
+    })
 
-        enemy:init(function(controller)
-            controller.origin:SetOrigin(spawnPos)
+    -- 3: Mid skel room
+    self:spawnRoom({
+        spawnPos = Entities:FindByName(nil, 'spawn_room_mid_3'):GetOrigin(),
+        enemies = {
+            skels = {
+                count = 5,
+                createEnemy = enemyBlob,
+                needsKilling = true
+            }
+        },
+        reward = constants.reward_key
+    })
 
-            controller:doMovement({
-                delay = 3
-            })
+    -- 3: Left bat room
+    self:spawnRoom({
+        spawnPos = Entities:FindByName(nil, 'spawn_room_left_3'):GetOrigin(),
+        enemies = {
+            bats = {
+                count = 6,
+                createEnemy = enemyBlob,
+                needsKilling = true
+            }
+        }
+    })
+
+    -- 3: Right bat room
+    self:spawnRoom({
+        spawnPos = Entities:FindByName(nil, 'spawn_room_right_3'):GetOrigin(),
+        enemies = {
+            bats = {
+                count = 8,
+                createEnemy = enemyBlob,
+                needsKilling = true
+            }
+        },
+        reward = constants.reward_compass
+    })
+
+    -- 4: Mid blob room
+    self:spawnRoom({
+        spawnPos = Entities:FindByName(nil, 'spawn_room_mid_4'):GetOrigin(),
+        enemies = {
+            blobs = {
+                count = 5,
+                createEnemy = enemyBlob,
+                needsKilling = true
+            }
+        },
+        reward = constants.reward_map
+    })
+
+    -- 4: Left blob room
+    self:spawnRoom({
+        spawnPos = Entities:FindByName(nil, 'spawn_room_left_4'):GetOrigin(),
+        enemies = {
+            blobs = {
+                count = 3,
+                createEnemy = enemyBlob,
+                needsKilling = true
+            }
+        }
+    })
+
+    -- 4: Right boomerang room
+    self:spawnRoom({
+        spawnPos = Entities:FindByName(nil, 'spawn_room_right_4'):GetOrigin(),
+        enemies = {
+            boomerangs = {
+                count = 3,
+                createEnemy = enemyBlob,
+                needsKilling = true
+            }
+        },
+        reward = constants.reward_boomerang
+    })
+
+    -- 4: right right hand room
+    self:spawnRoom({
+        spawnPos = Entities:FindByName(nil, 'spawn_room_right_right_4'):GetOrigin(),
+        enemies = {
+            hands = {
+                count = 2,
+                createEnemy = enemyBlob,
+                needsKilling = true
+            }
+        },
+        reward = constants.reward_key
+    })
+
+    -- 5: Mid skeleton room
+    self:spawnRoom({
+        spawnPos = Entities:FindByName(nil, 'spawn_room_mid_5'):GetOrigin(),
+        enemies = {
+            skels = {
+                count = 3,
+                createEnemy = enemyBlob,
+                needsKilling = true
+            }
+        }
+    })
+
+    -- 6: Mid boomerang room
+    self:spawnRoom({
+        spawnPos = Entities:FindByName(nil, 'spawn_room_mid_6'):GetOrigin(),
+        enemies = {
+            boomerangs = {
+                count = 3,
+                createEnemy = enemyBlob,
+                needsKilling = true
+            }
+        },
+        reward = constants.reward_key
+    })
+end
+
+-- Spawns a room full of enemies
+function Gamemode:spawnRoom(options)
+    -- Only spawn one room at a time
+    if self.spawningRoom then
+        table.insert(self.spawningRoomBackLog, options)
+        return
+    end
+    self.spawningRoom = true
+
+    local enemies = options.enemies or {}
+    local spawnPos = options.spawnPos or options.rewawrdPos
+    local rewawrdPos = options.rewawrdPos or options.spawnPos
+
+    -- Create a table of the total number of mobs to spawn
+    local toSpawn = {}
+    for _,enemyInfo in pairs(enemies) do
+        for i=1,enemyInfo.count do
+            table.insert(toSpawn, enemyInfo)
+        end
+    end
+
+    local this = self
+    local totalEnemiesAlive = 0
+
+    local spawnUpto = 0
+    function spawnNextMob()
+        spawnUpto = spawnUpto + 1
+        if spawnUpto > #toSpawn then
+            this.spawningRoom = false
+            if #this.spawningRoomBackLog > 0 then
+                this:spawnRoom(table.remove(this.spawningRoomBackLog, 1))
+            end
+            return
+        end
+
+        local enemyInfo = toSpawn[spawnUpto]
+
+        local enemy = enemyInfo.createEnemy()
+        enemy:init(spawnPos, function(controller)
+            local needsKilling = enemyInfo.needsKilling or false
+
+            if needsKilling then
+                totalEnemiesAlive = totalEnemiesAlive + 1
+            end
 
             controller:addCallback('onDie', function()
-                birdsLeft = birdsLeft - 1
+                if needsKilling then
+                    totalEnemiesAlive = totalEnemiesAlive - 1
 
-                print('bird killed!')
+                    if totalEnemiesAlive == 0 then
+                        print('room complete')
 
-                if birdsLeft == 0 then
-                    print('Spawn Key!')
+                        local theReward = options.reward
+
+                        if theReward == constants.reward_key then
+                            print('Give key!')
+                        end
+                    end
                 end
             end)
 
-            spawnNextBird()
+            -- Start the enemy
+            controller:onReady()
+
+            -- Continue spawning
+            spawnNextMob()
         end)
     end
 
-    spawnNextBird()
+    -- Start spawning mobs
+    spawnNextMob()
 end
 
 -- Export the gamemode

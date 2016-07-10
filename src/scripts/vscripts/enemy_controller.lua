@@ -7,7 +7,7 @@ local util = require('util')
 local enemyController = class({})
 
 -- Init enemy controller
-function enemyController:init(callback)
+function enemyController:init(startingPos, callback)
     -- Create the movement framework
     local spawner = Entities:FindByName(nil, 'template_enemy_tracks')
     DoEntFireByInstanceHandle(spawner, 'ForceSpawn', '', 0, nil, nil)
@@ -35,6 +35,9 @@ function enemyController:init(callback)
 
         -- Store the attachment ent
         this.attachTo = this.vertTracks
+
+        -- Move it into position
+        this.origin:SetOrigin(startingPos)
 
         -- Call sub init stuff
         if this.subInit then
@@ -138,8 +141,6 @@ end
 -- When this enemy is hit
 function enemyController:onHit()
     if self.dead then return end
-
-    print('ouch!')
 
     local this = self
 
@@ -257,6 +258,10 @@ function enemyController:doMovement(options)
         -- Walk West
         self:west(onWalkFinished)
     end
+end
+
+-- Called when the game is ready for this mob to come alive
+function enemyController:onReady()
 end
 
 -- Export the enemy controller

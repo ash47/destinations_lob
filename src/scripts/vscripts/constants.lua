@@ -19,5 +19,10 @@ Constants.item_sword = 2
 Constants.item_shield = 3
 Constants.item_key = 4
 
+-- Rewards
+Constants.reward_key = 1
+Constants.reward_compass = 2
+Constants.reward_map = 3
+
 -- Export
 return Constants
