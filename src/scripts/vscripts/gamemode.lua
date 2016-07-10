@@ -391,12 +391,11 @@ function Gamemode:initInventory()
     self.itemOrderList = {
         [1] = constants.item_nothing,
         [2] = constants.item_sword,
-        [3] = constants.item_shield,
-        [4] = constants.item_key,
-        [5] = constants.item_bow,
-        [6] = constants.item_boomerang,
-        [7] = constants.item_bomb,
-        [8] = constants.item_map
+        [5] = constants.item_boomerang,
+        [4] = constants.item_bow,
+        [6] = constants.item_bomb,
+        [3] = constants.item_key,
+        [7] = constants.item_map
     }
 
     -- Define the reverse lookup table
@@ -430,8 +429,9 @@ function Gamemode:handGotoNextItem(handID)
 
     -- Find the next item
     local nextItemID = itemOrder + 1
+    local tempItemID
     while true do
-        local tempItemID = self.itemOrderList[nextItemID]
+        tempItemID = self.itemOrderList[nextItemID]
         if tempItemID then
             if self.myItems[tempItemID] then
                 -- Found the next item
@@ -445,7 +445,7 @@ function Gamemode:handGotoNextItem(handID)
     end
 
     -- Put this item into our hand
-    self:setHandItem(handID, nextItemID)
+    self:setHandItem(handID, tempItemID)
 end
 
 -- Sets the item that is in a hand
