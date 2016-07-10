@@ -304,19 +304,10 @@ function Gamemode:onTriggerPressed(handID, buttonID)
         return
     end
 
-    print('trigger!')
-
-    local ent = Entities:CreateByClassname('prop_physics')
-    ent:SetModel('models/props/boomerang/boomerang.vmdl')
-    ent:SetOrigin(hand:GetOrigin())
-    ent:SetModelScale(0.1218)
-
     local angs = hand:GetAnglesAsVector()
 
     local pitchDegree = angs.x
     local yawDegree = angs.y
-
-    print(pitchDegree, yawDegree)
 
     local pitch = pitchDegree * math.pi / 180
     local yaw = yawDegree * math.pi / 180
@@ -327,9 +318,27 @@ function Gamemode:onTriggerPressed(handID, buttonID)
         -math.sin(pitch)
     )
 
-    --newVec = RotatePosition(Vector(0,0,0), QAngle(90,0,0), newVec)
+    if self['hand' .. handID .. 'Item'] == constants.item_boomerang then
+        local ent = Entities:CreateByClassname('prop_physics')
+        ent:SetModel('models/props/boomerang/boomerang.vmdl')
+        ent:SetOrigin(hand:GetOrigin())
+        ent:SetModelScale(0.1218)
+        ent:ApplyAbsVelocityImpulse(newVec * 250)
 
-    ent:ApplyAbsVelocityImpulse(newVec * 1000)
+        local handParts = self['entityParts' .. handID] or {}
+        local partModel = handParts.model
+
+        if partModel then
+            local modelAngles = partModel:GetAnglesAsVector()
+            ent:SetAngles(modelAngles.x, modelAngles.y, modelAngles.z)
+        end
+
+        timers:setTimeout(function()
+            if IsValidEntity(ent) then
+                ent:RemoveSelf()
+            end
+        end, 2)
+    end
 end
 
 -- DEBUG: Spawn Melon
@@ -439,7 +448,7 @@ function Gamemode:setHandItem(handID, itemID)
     end
 
     -- Create the new item
-    self:createHandItem(itemID, handID, function(itemOrigin, itemCol)
+    self:createHandItem(itemID, handID, function(itemOrigin, parts)
         if itemOrigin then
             -- Store it
             self['entityItem' .. handID] = itemOrigin
@@ -451,6 +460,8 @@ function Gamemode:setHandItem(handID, itemID)
             itemOrigin:SetParent(hand, '')
             itemOrigin:SetAngles(angles.x, angles.y, angles.z)
         end
+
+        self['entityParts' .. handID] = parts or {}
     end)
 
     -- Store the ID that is now in our hand
@@ -481,7 +492,7 @@ function Gamemode:createHandItem(itemID, handID, callback)
                 end
                 itemCol:RedirectOutput('OnStartTouch', 'OnStartTouch', itemCol)
             end
-            callback(parts.model, parts.trigger)
+            callback(parts.model, parts)
         end)
     end
 
@@ -491,7 +502,7 @@ function Gamemode:createHandItem(itemID, handID, callback)
             model = 'item_key_model'
         }, function(parts)
             parts.model.isDoorKey = true
-            callback(parts.origin)
+            callback(parts.origin, parts)
         end)
     end
 
@@ -508,7 +519,7 @@ function Gamemode:createHandItem(itemID, handID, callback)
             model = 'item_boomerang_model',
             origin = 'item_boomerang_origin'
         }, function(parts)
-            callback(parts.origin)
+            callback(parts.origin, parts)
         end)
     end
 
