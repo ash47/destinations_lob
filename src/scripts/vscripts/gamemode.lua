@@ -391,10 +391,10 @@ function Gamemode:initInventory()
     self.itemOrderList = {
         [1] = constants.item_nothing,
         [2] = constants.item_sword,
-        [5] = constants.item_boomerang,
+        [3] = constants.item_boomerang,
         [4] = constants.item_bow,
-        [6] = constants.item_bomb,
-        [3] = constants.item_key,
+        [5] = constants.item_bomb,
+        [6] = constants.item_key,
         [7] = constants.item_map
     }
 
