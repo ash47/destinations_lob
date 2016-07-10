@@ -1,5 +1,7 @@
 local timers = require('util.timers')
 local enemyController = require('enemy_controller')
+local enemyBird = require('enemy_bird')
+local util = require('util')
 
 --[[local ent = Entities:First()
 
@@ -203,14 +205,7 @@ end
 
 spawnAllDoors()]]
 
-function createSliderMonster()
-    local templateName = 'scary_monster_template'
-    local templateCornerName = 'scary_monster_corner'
-    local templateRightTrigger = 'scary_monster_right_trigger'
-    local templateDownTrigger = 'scary_monster_down_trigger'
 
-
-end
 
 
 --[[local monster = Entities:FindByName(nil, 'scary_monster_train')
@@ -221,3 +216,19 @@ DoEntFireByInstanceHandle(monsterCorner, 'DisableAlternatePath', '', 0, nil, nil
 
 DoEntFireByInstanceHandle(monster, 'SetSpeed', '1', 0, nil, nil)
 DoEntFireByInstanceHandle(monster, 'StartForward', '', 0, nil, nil)]]
+
+
+
+local ourPos = Vector(-1408.000000,-256.000000,56.000000)
+
+print(util:isSolid(ourPos, 3, 512))
+
+local data = {
+    startpos = startPos,
+    endpos = endPos,
+    mask = 33570827,
+
+}
+local res = TraceLine(data)
+
+print(util:traceWorld(ourPos, ourPos + Vector(0, 128, 0)))

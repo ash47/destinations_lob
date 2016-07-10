@@ -4,6 +4,8 @@ local timers = require('util.timers')
 local errorlib = require('util.errorlib')
 local util = require('util')
 
+local enemyBird = require('enemy_bird')
+
 -- Define the gamemode
 local Gamemode = {}
 
@@ -34,6 +36,9 @@ function Gamemode:init(ply, hmd, hand0, hand1)
 
     -- Init slider monsters
     self:spawnAllSliderMonsters()
+
+    -- Spawn mobs
+    self:spawnMobs()
 
     -- Generate paths
     self:generatePaths()
@@ -293,23 +298,6 @@ function Gamemode:spawnMelon(handID)
     ent:SetOrigin(hand:GetOrigin() + Vector(0, 0, 64))
 end
 
--- Spawns a template and runs the callback with the new ent
-function Gamemode:spawnTemplateAndGrab(templateName, parts, callback)
-    local spawner = Entities:FindByName(nil, templateName)
-    DoEntFireByInstanceHandle(spawner, 'ForceSpawn', '', 0, nil, nil)
-
-    timers:setTimeout(function()
-        local partList = {}
-        for _,partName in pairs(parts) do
-            partList[_] = Entities:FindByName(nil, partName)
-        end
-
-        if callback then
-            callback(partList)
-        end
-    end, 0.1)
-end
-
 -- Init inventory system
 function Gamemode:initInventory()
     self.hand0Item = constants.item_nothing
@@ -413,23 +401,6 @@ function Gamemode:setHandItem(handID, itemID)
             itemOrigin:SetParent(hand, '')
             itemOrigin:SetAngles(angles.x, angles.y, angles.z)
         end
-
-        if itemCol then
-            local scope = itemCol:GetOrCreatePrivateScriptScope()
-            scope.OnStartTouch = function(args)
-                print('on touch!0')
-
-                local activator = args.activator
-
-                activator:RemoveSelf()
-            end
-
-            scope.OnTrigger = function(args)
-                print('on trigger!0')
-            end
-            itemCol:RedirectOutput('OnTrigger', 'OnTrigger', itemCol)
-            itemCol:RedirectOutput('OnStartTouch', 'OnStartTouch', itemCol)
-        end
     end)
 
     -- Store the ID that is now in our hand
@@ -483,16 +454,33 @@ function Gamemode:createHandItem(itemID, handID, callback)
 
         --callback(ent)
 
-        self:spawnTemplateAndGrab('templateSword1', {
+        util:spawnTemplateAndGrab('templateSword1', {
             model = 'templateSword1_sword',
             trigger = 'templateSword1_trigger'
         }, function(parts)
+            local itemCol = parts.trigger
+
+            if itemCol then
+                local scope = itemCol:GetOrCreatePrivateScriptScope()
+                scope.OnStartTouch = function(args)
+                    local activator = args.activator
+
+                    -- Are they an enemy?
+                    if activator.enemy then
+                        -- Do they have an onHit callback?
+                        if activator.enemy.onHit then
+                            activator.enemy:onHit()
+                        end
+                    end
+                end
+                itemCol:RedirectOutput('OnStartTouch', 'OnStartTouch', itemCol)
+            end
             callback(parts.model, parts.trigger)
         end)
     end
 
     if itemID == constants.item_key then
-        self:spawnTemplateAndGrab('item_key_template', {
+        util:spawnTemplateAndGrab('item_key_template', {
             origin = 'item_key_origin',
             model = 'item_key_model'
         }, function(parts)
@@ -743,6 +731,46 @@ function Gamemode:spawnAllSliderMonsters()
 
     -- Start spawning
     nextSpawnCallback()
+end
+
+-- Init rooms
+function Gamemode:spawnMobs()
+    --[[
+        Bird room 1
+    ]]
+    local spawnPos = Entities:FindByName(nil, 'marker_bird_room'):GetOrigin()
+
+    local birdsLeft = 3
+    local birdsLeftToSpawn = birdsLeft
+
+    function spawnNextBird()
+        if birdsLeftToSpawn <= 0 then return end
+        birdsLeftToSpawn = birdsLeftToSpawn - 1
+
+        local enemy = enemyBird()
+
+        enemy:init(function(controller)
+            controller.origin:SetOrigin(spawnPos)
+
+            controller:doMovement({
+                delay = 3
+            })
+
+            controller:addCallback('onDie', function()
+                birdsLeft = birdsLeft - 1
+
+                print('bird killed!')
+
+                if birdsLeft == 0 then
+                    print('Spawn Key!')
+                end
+            end)
+
+            spawnNextBird()
+        end)
+    end
+
+    spawnNextBird()
 end
 
 -- Export the gamemode
