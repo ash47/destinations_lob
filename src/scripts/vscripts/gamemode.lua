@@ -248,7 +248,6 @@ function Gamemode:handleButtons()
     -- Process both hands
     for handID=0,1 do
         local gripButtonID = constants['hand'..handID..'_grip']
-
         local now = Time()
 
         -- Is the grip button pressed?
@@ -281,7 +280,56 @@ function Gamemode:handleButtons()
                 self.doneLongPress[gripButtonID] = nil
             end
         end
+
+        -- Is the trigger pressed?
+        local triggerButtonID = constants['hand'..handID..'_trigger']
+        if ply:IsVRControllerButtonPressed(triggerButtonID) then
+            if not self.buttonPressed[triggerButtonID] then
+                self.buttonPressed[triggerButtonID] = true
+
+                -- Trigger was pressed
+                self:onTriggerPressed(handID, triggerButtonID)
+            end
+        else
+            self.buttonPressed[triggerButtonID] = false
+        end
     end
+end
+
+-- When the trigger is pressed
+function Gamemode:onTriggerPressed(handID, buttonID)
+    local hand = self['hand' .. handID]
+    if not hand then
+        errorlib:error('Failed to find hand ' .. handID)
+        return
+    end
+
+    print('trigger!')
+
+    local ent = Entities:CreateByClassname('prop_physics')
+    ent:SetModel('models/props/boomerang/boomerang.vmdl')
+    ent:SetOrigin(hand:GetOrigin())
+    ent:SetModelScale(0.1218)
+
+    local angs = hand:GetAnglesAsVector()
+
+    local pitchDegree = angs.x
+    local yawDegree = angs.y
+
+    print(pitchDegree, yawDegree)
+
+    local pitch = pitchDegree * math.pi / 180
+    local yaw = yawDegree * math.pi / 180
+
+    local newVec = Vector(
+        math.cos(yaw) * math.cos(pitch),
+        math.sin(yaw) * math.cos(pitch),
+        -math.sin(pitch)
+    )
+
+    --newVec = RotatePosition(Vector(0,0,0), QAngle(90,0,0), newVec)
+
+    ent:ApplyAbsVelocityImpulse(newVec * 1000)
 end
 
 -- DEBUG: Spawn Melon
@@ -308,7 +356,9 @@ function Gamemode:initInventory()
         [1] = constants.item_nothing,
         [2] = constants.item_sword,
         [3] = constants.item_shield,
-        [4] = constants.item_key
+        [4] = constants.item_key,
+        [5] = constants.item_bow,
+        [6] = constants.item_boomerang
     }
 
     -- Define the reverse lookup table
@@ -410,50 +460,6 @@ end
 -- Creates an instance of a given item
 function Gamemode:createHandItem(itemID, handID, callback)
     if itemID == constants.item_sword then
-        --local ent = Entities:CreateByClassname('prop_physics')
-        --ent:SetModel('models/weapons/sword1/sword1.vmdl')
-
-        --[[local cols = Entities:FindByName(nil, 'swordCol' .. handID)
-        cols:SetOrigin(ent:GetOrigin())
-        cols:SetParent(ent, '')
-
-        local angles = ent:GetAnglesAsVector()
-        cols:SetAngles(angles.x, angles.y, angles.z)]]
-
-        --cols:SetModel('models/weapons/sword1/sword1.vmdl')
-
-        --DeepPrintTable(getmetatable(cols))
-
-        --local mins = ent:GetBoundingMins()
-        --local maxs = ent:GetBoundingMaxs()
-
-        --local trigger = CreateTrigger(Vector(0,0,0), mins, maxs)
-        --local trigger = CreateTrigger(Vector(-1000,-1000,-1000), Vector(1000,1000,1000), Vector(0,0,0))
-        --local trigger = CreateTriggerRadiusApproximate(ent:GetOrigin(), 100)
-        --trigger:SetParent(ent, '')
-
-        --[[trigger:FireOutput('spawnflags', nil, nil, {
-
-        }, 0)]]
-
-        --[[DoEntFireByInstanceHandle(trigger, 'spawnflags', '11', 0, nil, nil)
-
-        local scope = trigger:GetOrCreatePrivateScriptScope()
-        scope.OnStartTouch = function(args)
-            print('on touch!')
-        end
-
-        scope.OnTrigger = function(args)
-            print('on trigger!')
-        end
-        trigger:RedirectOutput('OnTrigger', 'OnTrigger', trigger)
-        trigger:RedirectOutput('OnStartTouch', 'OnStartTouch', trigger)
-
-        trigger:Trigger()
-        DoEntFireByInstanceHandle(trigger, 'OnStartTouch', '11', 0, nil, nil)]]
-
-        --callback(ent)
-
         util:spawnTemplateAndGrab('templateSword1', {
             model = 'templateSword1_sword',
             trigger = 'templateSword1_trigger'
@@ -496,6 +502,19 @@ function Gamemode:createHandItem(itemID, handID, callback)
 
         callback(ent)
     end
+
+    if itemID == constants.item_boomerang then
+        util:spawnTemplateAndGrab('item_boomerang_template', {
+            model = 'item_boomerang_model',
+            origin = 'item_boomerang_origin'
+        }, function(parts)
+            callback(parts.origin)
+        end)
+    end
+
+    --[[if itemID == constants.item_bow then
+
+    end]]
 end
 
 -- When a key is used

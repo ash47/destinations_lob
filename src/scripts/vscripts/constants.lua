@@ -18,11 +18,15 @@ Constants.item_nothing = 1
 Constants.item_sword = 2
 Constants.item_shield = 3
 Constants.item_key = 4
+Constants.item_bow = 5
+Constants.item_boomerang = 6
+Constants.item_bomb = 7
 
 -- Rewards
 Constants.reward_key = 1
 Constants.reward_compass = 2
 Constants.reward_map = 3
+Constants.reward_boomerang = 4
 
 -- Export
 return Constants

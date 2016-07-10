@@ -41,6 +41,9 @@ function OnPrecache(context)
     context:AddResource('models/weapons/sword1/sword1.vmdl')
     context:AddResource('models/items/shield1/shield1.vmdl')
 
+    context:AddResource('models/items/boomerang/boomerang.vmdl')
+    context:AddResource('models/props/boomerang/boomerang.vmdl')
+
     -- Misc
     context:AddResource('models/props_junk/watermelon01.vmdl')
 
