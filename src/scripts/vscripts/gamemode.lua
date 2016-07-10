@@ -439,6 +439,9 @@ function Gamemode:initInventory()
     for posNum, itemID in pairs(self.itemOrderList) do
         self.myItems[itemID] = true
     end
+
+    -- Start with 0 keys
+    self.totalKeys = 0
 end
 
 -- Go to the next item in a hand
@@ -467,8 +470,14 @@ function Gamemode:handGotoNextItem(handID)
                     -- item is already in one of our hands :/
                     nextItemID = nextItemID + 1
                 else
-                    -- Found the next item
-                    break
+                    -- Is it a key, do we have any keys?
+                    if tempItemID == constants.item_key and self.totalKeys <= 0 then
+                        -- Item is a key, we don't have any keys :/
+                        nextItemID = nextItemID + 1
+                    else
+                        -- Found the next item
+                        break
+                    end
                 end
             else
                 nextItemID = nextItemID + 1
@@ -617,6 +626,9 @@ function Gamemode:onKeyUsed()
             self:setHandItem(handID, constants.item_nothing)
         end
     end
+
+    -- Lower the number of keys we have left
+    self.totalKeys = self.totalKeys - 1
 end
 
 function Gamemode:createDoor(origin, angles, callback)
@@ -1151,6 +1163,10 @@ function Gamemode:onCollectKey(ent)
     if IsValidEntity(ent) then
         ent:RemoveSelf()
     end
+
+    -- Increase the number of keys we have
+    self.totalKeys = self.totalKeys + 1
+    self.myItems[constants.item_key] = true
 end
 
 -- Export the gamemode
