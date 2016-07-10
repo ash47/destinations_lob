@@ -323,25 +323,47 @@ function Gamemode:onTriggerPressed(handID, buttonID)
     local handItem = self['hand' .. handID .. 'Item']
 
     if handItem == constants.item_boomerang then
-        local ent = Entities:CreateByClassname('prop_physics')
-        ent:SetModel('models/props/boomerang/boomerang.vmdl')
-        ent:SetOrigin(hand:GetOrigin())
-        ent:SetModelScale(0.1218)
-        ent:ApplyAbsVelocityImpulse(newVec * 250)
+        util:spawnTemplateAndGrab('prop_boomerang_template', {
+            model = 'prop_boomerang',
+            trigger = 'prop_boomerang_trigger'
+        }, function(parts)
+            local ent = parts.model
 
-        local handParts = self['entityParts' .. handID] or {}
-        local partModel = handParts.model
+            ent:SetOrigin(hand:GetOrigin())
+            ent:ApplyAbsVelocityImpulse(newVec * 250)
 
-        if IsValidEntity(partModel) then
-            local modelAngles = partModel:GetAnglesAsVector()
-            ent:SetAngles(modelAngles.x, modelAngles.y, modelAngles.z)
-        end
+            local handParts = self['entityParts' .. handID] or {}
+            local partModel = handParts.model
 
-        timers:setTimeout(function()
-            if IsValidEntity(ent) then
-                ent:RemoveSelf()
+            if IsValidEntity(partModel) then
+                local modelAngles = partModel:GetAnglesAsVector()
+                ent:SetAngles(modelAngles.x, modelAngles.y, modelAngles.z)
             end
-        end, 2)
+
+            timers:setTimeout(function()
+                if IsValidEntity(ent) then
+                    ent:RemoveSelf()
+                end
+            end, 2)
+
+            local itemCol = parts.trigger
+
+            if itemCol then
+                local scope = itemCol:GetOrCreatePrivateScriptScope()
+                scope.OnStartTouch = function(args)
+                    local activator = args.activator
+
+                    -- Are they an enemy?
+                    if activator.enemy then
+                        -- Do they have an onHit callback?
+                        if activator.enemy.onHit then
+                            activator.enemy:onHit()
+                        end
+                    end
+                end
+                itemCol:RedirectOutput('OnStartTouch', 'OnStartTouch', itemCol)
+            end
+        end)
     end
 
     if handItem == constants.item_bomb then
