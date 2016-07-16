@@ -1206,6 +1206,11 @@ function Gamemode:createExplosion(origin)
             explosion:SetOrigin(origin)
             DoEntFireByInstanceHandle(explosion, 'Explode', '', 0, nil, nil)
 
+            -- Play the sound
+            local explodeSound = Entities:FindByName(nil, 'sound_explode')
+            DoEntFireByInstanceHandle(explodeSound, 'StartSound', '', 0, nil, nil)
+
+
             -- Find stuff to cause damage to
             local ents = Entities:FindAllInSphere(origin, 64)
             for _,ent in pairs(ents) do

@@ -44,4 +44,18 @@
         delay = 0.0
         vsnd_files = "sounds/vehicles/digger_grinder_loop1.vsnd"
     }
+
+    weapons.explode =
+    {
+        type = "destinations.simple_2d"
+        volume = 1.0
+        pitch = 1.0
+        delay = 0.0
+        vsnd_files =
+        [
+            "sounds/weapons/explode3.vsnd",
+            "sounds/weapons/explode4.vsnd",
+            "sounds/weapons/explode5.vsnd"
+        ]
+    }
 }
