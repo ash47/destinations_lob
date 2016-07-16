@@ -62,6 +62,8 @@ function Gamemode:init(ply, hmd, hand0, hand1)
 end
 
 function Gamemode:initEula()
+    local this = self
+
     _G.onAcceptedEULA = function()
         this:onAcceptedEULA()
     end
