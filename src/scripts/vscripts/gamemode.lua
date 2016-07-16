@@ -58,7 +58,7 @@ function Gamemode:init(ply, hmd, hand0, hand1)
     -- Init EULA
     self:initEula()
 
-    self:generatePaths()
+    --self:generatePaths()
 end
 
 function Gamemode:initEula()
@@ -1071,7 +1071,8 @@ function Gamemode:spawnMobs()
                 createEnemy = enemyBlob,
                 needsKilling = true
             }
-        }
+        },
+        reward = constants.reward_key
     })
 
     -- 6: Mid boomerang room
