@@ -150,7 +150,7 @@ function enemyController:onHit()
 
     timers:setTimeout(function()
         this.cantHurt = false
-    end, 0.5)
+    end, 0.1)
 
     -- Take damage
     self.hp = self.hp - 1
@@ -199,19 +199,29 @@ function enemyController:onHit()
         end
     end
 
+    ourPos = ourPos + Vector(0, 0, 64)
+
     if backx then
         if dif.x < 0 then
-            self:east()
+            if not util:isSolid(ourPos, 2, 64) and not util:isSolid(ourPos, 2, 128) and not util:isSolid(ourPos, 2, 256) then
+                self:east()
+            end
         else
-            self:west()
+            if not util:isSolid(ourPos, 4, 64) and not util:isSolid(ourPos, 4, 128) and not util:isSolid(ourPos, 4, 256) then
+                self:west()
+            end
         end
     end
 
     if backy then
         if dif.y > 0 then
-            self:south()
+            if not util:isSolid(ourPos, 3, 64) and not util:isSolid(ourPos, 3, 128) and not util:isSolid(ourPos, 3, 256) then
+                self:south()
+            end
         else
-            self:north()
+            if not util:isSolid(ourPos, 1, 64) and not util:isSolid(ourPos, 1, 128) and not util:isSolid(ourPos, 1, 256) then
+                self:north()
+            end
         end
     end
 end

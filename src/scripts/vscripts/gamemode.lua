@@ -367,26 +367,76 @@ function Gamemode:onTriggerPressed(handID, buttonID)
     end
 
     if handItem == constants.item_bomb then
-        local ent = Entities:CreateByClassname('prop_physics')
-        ent:SetModel('models/props/boomerang/boomerang.vmdl')
-        ent:SetOrigin(hand:GetOrigin())
-        ent:SetModelScale(0.1218)
-        ent:ApplyAbsVelocityImpulse(newVec * 250)
+        util:spawnTemplateAndGrab('template_prop_bomb', {
+            bomb = 'template_prop_bomb_bomb'
+        }, function(parts)
+            local ent = parts.bomb
 
-        local handParts = self['entityParts' .. handID] or {}
-        local partModel = handParts.model
+            ent:SetOrigin(hand:GetOrigin())
 
-        if IsValidEntity(partModel) then
-            local modelAngles = partModel:GetAnglesAsVector()
-            ent:SetAngles(modelAngles.x, modelAngles.y, modelAngles.z)
-        end
+            local handParts = self['entityParts' .. handID] or {}
+            local partModel = handParts.model
 
-        timers:setTimeout(function()
-            if IsValidEntity(ent) then
-                this:createExplosion(ent:GetOrigin())
-                ent:RemoveSelf()
+            if IsValidEntity(partModel) then
+                local modelAngles = partModel:GetAnglesAsVector()
+                ent:SetAngles(modelAngles.x, modelAngles.y, modelAngles.z)
+                ent:SetOrigin(partModel:GetOrigin())
             end
-        end, 2)
+
+            ent:ApplyAbsVelocityImpulse(newVec * 250)
+
+            timers:setTimeout(function()
+                if IsValidEntity(ent) then
+                    this:createExplosion(ent:GetOrigin())
+                    ent:RemoveSelf()
+                end
+            end, 2)
+        end)
+    end
+
+    if handItem == constants.item_bow then
+        util:spawnTemplateAndGrab('template_prop_arrow', {
+            model = 'template_prop_arrow_arrow',
+            trigger = 'template_prop_arrow_trigger'
+        }, function(parts)
+            local ent = parts.model
+
+            ent:SetOrigin(hand:GetOrigin())
+            ent:ApplyAbsVelocityImpulse(newVec * 1000)
+
+            local handParts = self['entityParts' .. handID] or {}
+            local partModel = handParts.arrow
+
+            if IsValidEntity(partModel) then
+                local modelAngles = partModel:GetAnglesAsVector()
+                ent:SetAngles(modelAngles.x, modelAngles.y, modelAngles.z)
+                ent:SetOrigin(partModel:GetOrigin())
+            end
+
+            timers:setTimeout(function()
+                if IsValidEntity(ent) then
+                    ent:RemoveSelf()
+                end
+            end, 2)
+
+            local itemCol = parts.trigger
+
+            if itemCol then
+                local scope = itemCol:GetOrCreatePrivateScriptScope()
+                scope.OnStartTouch = function(args)
+                    local activator = args.activator
+
+                    -- Are they an enemy?
+                    if activator.enemy then
+                        -- Do they have an onHit callback?
+                        if activator.enemy.onHit then
+                            activator.enemy:onHit()
+                        end
+                    end
+                end
+                itemCol:RedirectOutput('OnStartTouch', 'OnStartTouch', itemCol)
+            end
+        end)
     end
 end
 
@@ -581,12 +631,31 @@ function Gamemode:createHandItem(itemID, handID, callback)
         end)
     end
 
+    if itemID == constants.item_bomb then
+        util:spawnTemplateAndGrab('template_item_bomb', {
+            origin = 'template_item_bomb_origin',
+            model = 'template_item_bomb_bomb'
+        }, function(parts)
+            callback(parts.origin, parts)
+        end)
+    end
+
     if itemID == constants.item_shield then
         local ent = Entities:CreateByClassname('prop_physics')
         ent:SetModel('models/items/shield1/shield1.vmdl')
         --ent:SetModel('models/props_junk/watermelon01.vmdl')
 
         callback(ent)
+    end
+
+    if itemID == constants.item_bow then
+        util:spawnTemplateAndGrab('template_item_bow', {
+            model = 'template_item_bow_bow',
+            origin = 'template_item_bow_origin',
+            arrow = 'template_item_bow_arrow'
+        }, function(parts)
+            callback(parts.origin, parts)
+        end)
     end
 
     if itemID == constants.item_boomerang then
@@ -966,7 +1035,8 @@ function Gamemode:spawnMobs()
                 createEnemy = enemyBlob,
                 needsKilling = true
             }
-        }
+        },
+        reward = 'special_room_pushable'
     })
 
     -- 4: Right boomerang room
@@ -1076,6 +1146,16 @@ function Gamemode:spawnRoom(options)
                         if theReward == constants.reward_key then
                             this:createKey(info.deathOrigin + Vector(0, 0, 64))
                         end
+
+                        -- A special reward, allows you to unlock the next room
+                        if theReward == 'special_room_pushable' then
+                            print('yes!')
+                            local breakableFloor = Entities:FindByName(nil, 'mover_two_break')
+                            if breakableFloor then
+                                print('omg')
+                                DoEntFireByInstanceHandle(breakableFloor, 'Break', '', 0, nil, nil)
+                            end
+                        end
                     end
                 end
             end)
@@ -1134,8 +1214,6 @@ function Gamemode:createKey(spawnOrigin)
         model = 'prop_key',
         trigger = 'prop_key_trigger'
     }, function(parts)
-        print('hi')
-
         local ent = parts.model
 
         ent:SetOrigin(spawnOrigin)

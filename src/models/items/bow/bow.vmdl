@@ -6,8 +6,8 @@
 		m_meshList =
 		[
 			{
-				m_meshName = "arrow"
-				m_meshFile = "models/props/arrow/arrow.dmx"
+				m_meshName = "bow"
+				m_meshFile = "models/items/bow/bow.dmx"
 				m_materialSearchPath = ""
 				m_bSkinParentedObjects = true
 				m_bLegacySkinParentedTransforms = false
@@ -42,19 +42,6 @@
 	{
 		m_meshList =
 		[
-			{
-				m_meshName = "arrow"
-				m_meshFile = "models/props/arrow/arrow.dmx"
-				m_bOneConvexPiece = true
-				m_bUseExactGeometry = false
-				m_bAutoMass = true
-				m_flMassOverride = 100.000000
-				m_bConcavePerJoint = false
-				m_bSelfCollisions = false
-				m_bForceKinematic = false
-				m_bIgnoreScale = false
-				m_bIgnoreSkeleton = false
-			},
 		]
 	}
 	m_pModelInfo = null

@@ -6,8 +6,8 @@
 		m_meshList =
 		[
 			{
-				m_meshName = "arrow"
-				m_meshFile = "models/props/arrow/arrow.dmx"
+				m_meshName = "boomerang"
+				m_meshFile = "models/items/boomerang_new/boomerang.dmx"
 				m_materialSearchPath = ""
 				m_bSkinParentedObjects = true
 				m_bLegacySkinParentedTransforms = false
@@ -43,8 +43,8 @@
 		m_meshList =
 		[
 			{
-				m_meshName = "arrow"
-				m_meshFile = "models/props/arrow/arrow.dmx"
+				m_meshName = "boomerang"
+				m_meshFile = "models/items/boomerang_new/boomerang.dmx"
 				m_bOneConvexPiece = true
 				m_bUseExactGeometry = false
 				m_bAutoMass = true
@@ -134,7 +134,7 @@
 	m_nMaxClothVertsPerMesh = 2048
 	m_bBuildClothBoneHierarchy = false
 	m_nNavType = "AUTH_NAV_MESH"
-	m_bMakeUniqueVMeshes = false
+	m_bMakeUniqueVMeshes = true
 	m_bMakeImplicitBindPoseSequence = false
 	m_bAdjustSkeletonFromBoneFlags = false
 	m_pAnimGroups =
