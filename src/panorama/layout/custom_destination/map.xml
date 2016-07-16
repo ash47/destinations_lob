@@ -5,9 +5,29 @@
 		<include src="file://{resources}/styles/custom_destination/example.css" />
 	</styles>
 
+	<scripts>
+        <include src="file://{resources}/scripts/custom_destination/map.js" />
+    </scripts>
+
 	<ClientUIDialogPanel class="InWorldInfoPanel AlwaysVisible">
-		<Panel class="Page BigDialog" id="CameraPositionsDialog">
-			<Image class="mainMap" src="file://{images}/custom_destination/map.png" />
+		<Panel id="mainMapContainer" class="Map">
+			<Image id="map_1_left" class="mainMap" src="file://{images}/custom_destination/map/map_1_left.png" />
+			<Image id="map_1_mid" class="mainMap" src="file://{images}/custom_destination/map/map_1_mid.png" />
+			<Image id="map_1_right" class="mainMap" src="file://{images}/custom_destination/map/map_1_right.png" />
+			<Image id="map_2_mid" class="mainMap" src="file://{images}/custom_destination/map/map_2_mid.png" />
+			<Image id="map_3_left" class="mainMap" src="file://{images}/custom_destination/map/map_3_left.png" />
+			<Image id="map_3_mid" class="mainMap" src="file://{images}/custom_destination/map/map_3_mid.png" />
+			<Image id="map_3_right" class="mainMap" src="file://{images}/custom_destination/map/map_3_right.png" />
+			<Image id="map_4_left" class="mainMap" src="file://{images}/custom_destination/map/map_4_left.png" />
+			<Image id="map_4_left_left" class="mainMap" src="file://{images}/custom_destination/map/map_4_left_left.png" />
+			<Image id="map_4_mid" class="mainMap" src="file://{images}/custom_destination/map/map_4_mid.png" />
+			<Image id="map_4_right" class="mainMap" src="file://{images}/custom_destination/map/map_4_right.png" />
+			<Image id="map_4_right_right" class="mainMap" src="file://{images}/custom_destination/map/map_4_right_right.png" />
+			<Image id="map_5_mid" class="mainMap" src="file://{images}/custom_destination/map/map_5_mid.png" />
+			<Image id="map_5_right_right" class="mainMap" src="file://{images}/custom_destination/map/map_5_right_right.png" />
+			<Image id="map_5_right_right_right" class="mainMap triforceRoom" src="file://{images}/custom_destination/map/map_5_right_right_right.png" />
+			<Image id="map_6_left" class="mainMap" src="file://{images}/custom_destination/map/map_6_left.png" />
+			<Image id="map_6_mid" class="mainMap" src="file://{images}/custom_destination/map/map_6_mid.png" />
 		</Panel>
 	</ClientUIDialogPanel>
 </root>

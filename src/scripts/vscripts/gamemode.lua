@@ -51,6 +51,12 @@ function Gamemode:init(ply, hmd, hand0, hand1)
 
     -- All good
     errorlib:notify('Gamemode has started successfully!')
+
+    -- Room unlocking
+    local this = self
+    _G.onEnterRoom = function(roomName)
+        this:onEnterRoom(roomName)
+    end
 end
 
 -- Gamemode think function
@@ -434,6 +440,7 @@ function Gamemode:initInventory()
     self.myItems[constants.item_shield] = true
     self.myItems[constants.item_bomb] = true
     self.myItems[constants.item_map] = true
+    self.myItems[constants.item_boomerang] = true
 
     -- DEBUG: Give all items
     --[[for posNum, itemID in pairs(self.itemOrderList) do
@@ -547,6 +554,8 @@ end
 
 -- Creates an instance of a given item
 function Gamemode:createHandItem(itemID, handID, callback)
+    local this = self
+
     if itemID == constants.item_sword then
         util:spawnTemplateAndGrab('templateSword1', {
             model = 'templateSword1_sword',
@@ -622,6 +631,7 @@ function Gamemode:createHandItem(itemID, handID, callback)
 
     if itemID == constants.item_map then
         util:spawnTemplateAndGrab('template_map_template', {
+            back = 'template_map_model',
             model = 'template_map_map',
             origin = 'template_map_origin',
             origin2 = 'template_map_origin2'
@@ -633,6 +643,10 @@ function Gamemode:createHandItem(itemID, handID, callback)
 
             parts.model:SetParent(attachTo, '')
             callback(attachTo, parts)
+
+            -- Store this as our current map
+            this.currentMapEntity = parts.model
+            this:unlockRoomsForMapEntity(parts.model)
         end)
     end
 
@@ -1283,7 +1297,11 @@ function Gamemode:createPickupCompass(spawnOrigin)
     local this = self
 
     self:createPickup(spawnOrigin, function()
-        print('got the compass!')
+        -- We now have the compass
+        this.hasCompass = true
+
+        -- Re-render map
+        this:unlockRoomsForMapEntity(this.currentMapEntity)
     end, 'template_collect_compass', {
         origin = 'template_collect_compass_rot',
         model = 'template_collect_compass_model',
@@ -1316,6 +1334,47 @@ function Gamemode:onCollectItem(ent, itemID)
         itemID()
     else
         print('Unknown item handle!')
+    end
+end
+
+-- Called when we enter a new room
+function Gamemode:onEnterRoom(name)
+    -- Highlight the room
+    self.currentRoom = name;
+
+    -- Ensure the room is unlocked
+    self:unlockMapRoom(name);
+end
+
+-- Unlocks a map room
+function Gamemode:unlockMapRoom(name)
+    -- Ensure we have a store for unlocked rooms
+    self.unlockedRooms = self.unlockedRooms or {}
+    self.unlockedRooms[name] = true;
+
+    self:unlockRoomsForMapEntity(self.currentMapEntity)
+end
+
+-- Unlocks all the rooms for us
+function Gamemode:unlockRoomsForMapEntity(mapEntity)
+    if not self.unlockedRooms then return end
+    if not mapEntity or not IsValidEntity(mapEntity) then return end
+
+    -- Do we have the compass?
+    if self.hasCompass then
+        DoEntFireByInstanceHandle(mapEntity, 'AddCSSClass', 'hasCompass', 0, nil, nil)
+    end
+
+    for roomName,_ in pairs(self.unlockedRooms) do
+        -- Highlight current room
+        if self.currentRoom == roomName then
+            DoEntFireByInstanceHandle(mapEntity, 'AddCSSClass', 'inside_' .. roomName, 0, nil, nil)
+        else
+            DoEntFireByInstanceHandle(mapEntity, 'RemoveCSSClass', 'inside_' .. roomName, 0, nil, nil)
+        end
+
+        -- Show this room on the map
+        DoEntFireByInstanceHandle(mapEntity, 'AddCSSClass', roomName, 0, nil, nil)
     end
 end
 

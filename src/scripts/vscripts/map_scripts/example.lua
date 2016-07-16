@@ -60,3 +60,6 @@ function OnPrecache(context)
     context:AddResource('models/effects/teleport/vt_teleport_destination.vmdl')
     context:AddResource('models/effects/teleport/vt_teleport_destination_0e0e9edf.vmdl')
 end
+
+-- Patch room entering code
+_G.onEnterRoom = _G.onEnterRoom or function()end
