@@ -997,7 +997,8 @@ function Gamemode:spawnMobs()
                 createEnemy = enemyBlob,
                 needsKilling = true
             }
-        }
+        },
+        reward = 'special_room_unlockable'
     })
 
     -- 3: Right bat room
@@ -1149,11 +1150,22 @@ function Gamemode:spawnRoom(options)
 
                         -- A special reward, allows you to unlock the next room
                         if theReward == 'special_room_pushable' then
-                            print('yes!')
                             local breakableFloor = Entities:FindByName(nil, 'mover_two_break')
                             if breakableFloor then
-                                print('omg')
                                 DoEntFireByInstanceHandle(breakableFloor, 'Break', '', 0, nil, nil)
+                            end
+                        end
+
+                        -- Unlock the door for killing all the enemies
+                        if theReward == 'special_room_unlockable' then
+                            local theDoor = Entities:FindByName(nil, 'slider_door_2a')
+                            if theDoor then
+                                DoEntFireByInstanceHandle(theDoor, 'Close', '', 0, nil, nil)
+                            end
+
+                            local theDoor = Entities:FindByName(nil, 'slider_door_2b')
+                            if theDoor then
+                                DoEntFireByInstanceHandle(theDoor, 'Close', '', 0, nil, nil)
                             end
                         end
                     end
