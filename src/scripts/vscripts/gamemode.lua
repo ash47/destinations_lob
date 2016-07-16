@@ -55,6 +55,13 @@ function Gamemode:init(ply, hmd, hand0, hand1)
         this:onEnterRoom(roomName)
     end
 
+    -- Init EULA
+    self:initEula()
+
+    self:generatePaths()
+end
+
+function Gamemode:initEula()
     _G.onAcceptedEULA = function()
         this:onAcceptedEULA()
     end
@@ -63,9 +70,12 @@ function Gamemode:init(ply, hmd, hand0, hand1)
     local eula = Entities:FindByName(nil, 'info_eula')
     DoEntFireByInstanceHandle(eula, 'AcceptUserInput', '', 0, nil, nil)
     DoEntFireByInstanceHandle(eula, 'AddCSSClass', 'Activated', 0, nil, nil)
+
+    local endGame = Entities:FindByName(nil, 'info_endgame')
+    DoEntFireByInstanceHandle(endGame, 'AcceptUserInput', '', 0, nil, nil)
+    DoEntFireByInstanceHandle(endGame, 'AddCSSClass', 'Activated', 0, nil, nil)
 end
 
--- When the player accepts the EULA
 function Gamemode:onAcceptedEULA()
     -- Generate paths
     self:generatePaths()
