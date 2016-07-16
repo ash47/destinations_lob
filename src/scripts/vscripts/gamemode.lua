@@ -221,7 +221,7 @@ function Gamemode:handleButtons()
                     self.doneLongPress[gripButtonID] = true
                     --print('Long hold! ' .. handID)
 
-                    self:spawnMelon(handID)
+                    --self:spawnMelon(handID)
                 end
             end
         else
