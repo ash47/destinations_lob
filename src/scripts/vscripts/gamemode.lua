@@ -40,9 +40,6 @@ function Gamemode:init(ply, hmd, hand0, hand1)
     -- Spawn mobs
     self:spawnMobs()
 
-    -- Generate paths
-    self:generatePaths()
-
     -- Handle the bow pickup
     self:handleBowPickup()
 
@@ -57,6 +54,25 @@ function Gamemode:init(ply, hmd, hand0, hand1)
     _G.onEnterRoom = function(roomName)
         this:onEnterRoom(roomName)
     end
+
+    _G.onAcceptedEULA = function()
+        this:onAcceptedEULA()
+    end
+
+    -- Init eula
+    local eula = Entities:FindByName(nil, 'info_eula')
+    DoEntFireByInstanceHandle(eula, 'AcceptUserInput', '', 0, nil, nil)
+    DoEntFireByInstanceHandle(eula, 'AddCSSClass', 'Activated', 0, nil, nil)
+end
+
+-- When the player accepts the EULA
+function Gamemode:onAcceptedEULA()
+    -- Generate paths
+    self:generatePaths()
+
+    -- Remove EULA
+    local eulaEnt = Entities:FindByName(nil, 'info_eula')
+    eulaEnt:RemoveSelf()
 end
 
 -- Gamemode think function
@@ -436,6 +452,7 @@ function Gamemode:initInventory()
     self.myItems = {}
 
     -- Give starting items
+    self.myItems[constants.item_nothing] = true
     self.myItems[constants.item_sword] = true
     self.myItems[constants.item_shield] = true
     self.myItems[constants.item_bomb] = true
@@ -1285,7 +1302,12 @@ end
 
 -- Creates a map pickup at the given position
 function Gamemode:createPickupMap(spawnOrigin)
-    self:createPickup(spawnOrigin, constants.item_map, 'template_collect_map', {
+    local this = self
+
+    self:createPickup(spawnOrigin, function()
+        -- Unlock the full map
+        this:unlockFullMap()
+    end, 'template_collect_map', {
         origin = 'template_collect_map_rot',
         model = 'template_collect_map_model',
         trigger = 'template_collect_map_trigger'
@@ -1353,6 +1375,32 @@ function Gamemode:unlockMapRoom(name)
     self.unlockedRooms[name] = true;
 
     self:unlockRoomsForMapEntity(self.currentMapEntity)
+end
+
+-- Unlocks the full map
+function Gamemode:unlockFullMap()
+    local allRooms = {
+        map_1_mid = true,
+        map_1_right = true,
+        map_2_mid = true,
+        map_3_left = true,
+        map_3_mid = true,
+        map_3_right = true,
+        map_4_left = true,
+        map_4_left_left = true,
+        map_4_mid = true,
+        map_4_right = true,
+        map_4_right_right = true,
+        map_5_mid = true,
+        map_5_right_right = true,
+        map_5_right_right_right = true,
+        map_6_left = true,
+        map_6_mid = true
+    }
+
+    for roomName,_ in pairs(allRooms) do
+        self:unlockMapRoom(roomName)
+    end
 end
 
 -- Unlocks all the rooms for us

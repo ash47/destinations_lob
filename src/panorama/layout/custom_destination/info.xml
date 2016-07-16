@@ -1,0 +1,22 @@
+<root>
+	<styles>
+		<include src="file://{resources}/styles/base_styles.css" />
+		<include src="file://{resources}/styles/info_panels.css" />
+		<include src="file://{resources}/styles/custom_destination/example.css" />
+	</styles>
+
+	<ClientUIDialogPanel class="InWorldInfoPanel">
+		<Panel class="Page" id="CameraPositionsDialog">
+			<Panel class="TextArea WithButtons">
+				<Label class="Title" text="Legend of Zelda: A tech demo" />
+				<Label class="Desc" text="Welcome to the tech demo!\n\nSqueeze / press the hand grip to change weapons / items. Some weapons use the trigger to shoot.\n\nYou start with the following items:\n - Sword\n - Shield\n - Basic Boomerang\n - Bombs\n - A Map (This fills out as you walk around)\n\nKilling all the enemies in a room may result in a reward / event being triggered.\n\nYour goal is to kill the boss and get to the triforce room.\n\nClick Play to start!" />
+			</Panel>
+
+			<Panel class="InfoDialogButton">
+					<Button class="DialogButton Visible" text="Play" onactivate="$.DispatchEvent('ClientUI_FireOutput', '0');">
+						<Label text="Play" />
+					</Button>
+			</Panel>
+		</Panel>
+	</ClientUIDialogPanel>
+</root>
