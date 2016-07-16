@@ -43,77 +43,14 @@ function Gamemode:init(ply, hmd, hand0, hand1)
     -- Generate paths
     self:generatePaths()
 
-    --print(self.tpDevice0)
-
-    --DeepPrintTable(getmetatable(self.tpDevice0))
-
-    -- Try out a sword
-    self:physTest()
+    -- Handle the bow pickup
+    self:handleBowPickup()
 
     -- Start thinking
     timers:setTimeout('onThink', 0.1, self)
 
     -- All good
     errorlib:notify('Gamemode has started successfully!')
-end
-
-function Gamemode:physTest()
-    --[[local ent = Entities:FindByName(nil, 'swordCol0')
-
-    local scope = ent:GetOrCreatePrivateScriptScope()
-    scope.OnStartTouch = function(args)
-        print('on touch!0')
-
-        local activator = args.activator
-
-        activator:RemoveSelf()
-    end
-
-    scope.OnTrigger = function(args)
-        print('on trigger!0')
-    end
-    ent:RedirectOutput('OnTrigger', 'OnTrigger', ent)
-    ent:RedirectOutput('OnStartTouch', 'OnStartTouch', ent)
-
-
-
-
-
-    local ent = Entities:FindByName(nil, 'swordCol1')
-
-    local scope = ent:GetOrCreatePrivateScriptScope()
-    scope.OnStartTouch = function(args)
-        print('on touch!1')
-    end
-
-    scope.OnTrigger = function(args)
-        print('on trigger!1')
-    end
-    ent:RedirectOutput('OnTrigger', 'OnTrigger', ent)
-    ent:RedirectOutput('OnStartTouch', 'OnStartTouch', ent)]]
-
-
-    --print(ent:GetModelName())
-
-    --[[local newTrigger = Entities:CreateByClassname('trigger_multiple')
-
-    --DeepPrintTable(getmetatable(newTrigger))
-
-    --newTrigger:SetModel(ent:GetModelName())
-    --newTrigger:SetOrigin(ent:GetOrigin())
-
-    local scope = newTrigger:GetOrCreatePrivateScriptScope()
-    scope.OnStartTouch = function(args)
-        print('on touch!asdadasda')
-    end
-
-    scope.OnTrigger = function(args)
-        print('on trigger!asdsadsadas')
-    end
-    newTrigger:RedirectOutput('OnTrigger', 'OnTrigger', newTrigger)
-    newTrigger:RedirectOutput('OnStartTouch', 'OnStartTouch', newTrigger)]]
-
-    --print(ent:GetClassname())
 end
 
 -- Gamemode think function
@@ -329,8 +266,14 @@ function Gamemode:onTriggerPressed(handID, buttonID)
         }, function(parts)
             local ent = parts.model
 
+            local theVelocity = 250
+
+            if this.upgradedBoomerang then
+                theVelocity = 750
+            end
+
             ent:SetOrigin(hand:GetOrigin())
-            ent:ApplyAbsVelocityImpulse(newVec * 250)
+            ent:ApplyAbsVelocityImpulse(newVec * theVelocity)
 
             local handParts = self['entityParts' .. handID] or {}
             local partModel = handParts.model
@@ -463,11 +406,12 @@ function Gamemode:initInventory()
     self.itemOrderList = {
         [1] = constants.item_nothing,
         [2] = constants.item_sword,
-        [3] = constants.item_boomerang,
-        [4] = constants.item_bow,
-        [5] = constants.item_bomb,
-        [6] = constants.item_key,
-        [7] = constants.item_map
+        [3] = constants.item_shield,
+        [4] = constants.item_boomerang,
+        [5] = constants.item_bow,
+        [6] = constants.item_bomb,
+        [7] = constants.item_key,
+        [8] = constants.item_map
     }
 
     -- Define the reverse lookup table
@@ -485,10 +429,18 @@ function Gamemode:initInventory()
     -- Defines which items we actually own
     self.myItems = {}
 
+    -- Give starting items
+    self.myItems[constants.item_sword] = true
+    self.myItems[constants.item_shield] = true
+    self.myItems[constants.item_bomb] = true
+    self.myItems[constants.item_map] = true
+
     -- DEBUG: Give all items
-    for posNum, itemID in pairs(self.itemOrderList) do
+    --[[for posNum, itemID in pairs(self.itemOrderList) do
         self.myItems[itemID] = true
-    end
+    end]]
+
+    --self.myItems[constants.item_bow] = false
 
     -- Start with 0 keys
     self.totalKeys = 0
@@ -641,11 +593,12 @@ function Gamemode:createHandItem(itemID, handID, callback)
     end
 
     if itemID == constants.item_shield then
-        local ent = Entities:CreateByClassname('prop_physics')
-        ent:SetModel('models/items/shield1/shield1.vmdl')
-        --ent:SetModel('models/props_junk/watermelon01.vmdl')
-
-        callback(ent)
+        util:spawnTemplateAndGrab('template_item_shield', {
+            model = 'template_item_shield_model',
+            origin = 'template_item_shield_origin'
+        }, function(parts)
+            callback(parts.origin, parts)
+        end)
     end
 
     if itemID == constants.item_bow then
@@ -1168,6 +1121,21 @@ function Gamemode:spawnRoom(options)
                                 DoEntFireByInstanceHandle(theDoor, 'Close', '', 0, nil, nil)
                             end
                         end
+
+                        -- Spawn a map
+                        if theReward == constants.reward_map then
+                            this:createPickupMap(info.deathOrigin)
+                        end
+
+                        -- Spawn a compass
+                        if theReward == constants.reward_compass then
+                            this:createPickupCompass(info.deathOrigin)
+                        end
+
+                        -- Spawn boomerang upgrade
+                        if theReward == constants.reward_boomerang then
+                            this:createPickupBoomerang(info.deathOrigin)
+                        end
                     end
                 end
             end)
@@ -1257,6 +1225,98 @@ function Gamemode:onCollectKey(ent)
     -- Increase the number of keys we have
     self.totalKeys = self.totalKeys + 1
     self.myItems[constants.item_key] = true
+end
+
+-- Handles picking up a bow
+function Gamemode:handleBowPickup()
+    local bowTrigger = Entities:FindByName(nil, 'trigger_collectable_bow')
+
+    local this = self
+
+    if bowTrigger then
+        local scope = bowTrigger:GetOrCreatePrivateScriptScope()
+        scope.OnStartTouch = function(args)
+            local collectModel = Entities:FindByName(nil, 'collectable_arrow_rotating')
+
+            if collectModel then
+                collectModel:RemoveSelf()
+
+                this.myItems[constants.item_bow] = true
+            end
+        end
+        bowTrigger:RedirectOutput('OnStartTouch', 'OnStartTouch', bowTrigger)
+    end
+end
+
+-- Creates a generic pickup
+function Gamemode:createPickup(spawnOrigin, itemID, templateName, templateParts)
+    local this = self
+
+    util:spawnTemplateAndGrab(templateName, templateParts, function(parts)
+        local ent = parts.origin
+
+        ent:SetOrigin(spawnOrigin)
+
+        local itemCol = parts.trigger
+
+        if itemCol then
+            local scope = itemCol:GetOrCreatePrivateScriptScope()
+            scope.OnStartTouch = function(args)
+                this:onCollectItem(ent, itemID)
+            end
+            itemCol:RedirectOutput('OnStartTouch', 'OnStartTouch', itemCol)
+        end
+    end)
+end
+
+-- Creates a map pickup at the given position
+function Gamemode:createPickupMap(spawnOrigin)
+    self:createPickup(spawnOrigin, constants.item_map, 'template_collect_map', {
+        origin = 'template_collect_map_rot',
+        model = 'template_collect_map_model',
+        trigger = 'template_collect_map_trigger'
+    })
+end
+
+-- Creates a compass pickup at the given position
+function Gamemode:createPickupCompass(spawnOrigin)
+    local this = self
+
+    self:createPickup(spawnOrigin, function()
+        print('got the compass!')
+    end, 'template_collect_compass', {
+        origin = 'template_collect_compass_rot',
+        model = 'template_collect_compass_model',
+        trigger = 'template_collect_compass_trigger'
+    })
+end
+
+function Gamemode:createPickupBoomerang(spawnOrigin)
+    local this = self
+
+    self:createPickup(spawnOrigin, function()
+        this.upgradedBoomerang = true
+    end, 'template_collect_boomerang', {
+        origin = 'template_collect_boomerang_rot',
+        model = 'template_collect_boomerang_model',
+        trigger = 'template_collect_boomerang_trigger'
+    })
+end
+
+-- When we collect an item
+function Gamemode:onCollectItem(ent, itemID)
+    if IsValidEntity(ent) then
+        ent:RemoveSelf()
+    end
+
+    if type(itemID) == 'number' then
+        -- Add the item to our inventory
+        self.myItems[itemID] = true
+    elseif type(itemID) == 'function' then
+        itemID()
+    else
+        print('Unknown item handle!')
+    end
 end
 
 -- Export the gamemode
