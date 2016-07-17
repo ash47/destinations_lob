@@ -836,8 +836,8 @@ function Gamemode:createSliderMonster(origin, angles, callback)
         soundMove = 'scary_monster_sound_move',
         soundClash = 'scary_monster_sound_clash',
         triggerClash = 'scary_monster_callback',
-        triggerKillPly1 = 'scary_monster_ply_killzone1',
-        triggerKillPly2 = 'scary_monster_ply_killzone2'
+        triggerKillPly_down = 'scary_monster_ply_killzone_down',
+        triggerKillPly_right = 'scary_monster_ply_killzone_right'
     }, function(parts)
         -- Can we activate?
         local canActivate = false
@@ -873,7 +873,7 @@ function Gamemode:createSliderMonster(origin, angles, callback)
 
             -- Enable the killers
             DoEntFireByInstanceHandle(parts.triggerClash, 'Enable', '', 0, nil, nil)
-            DoEntFireByInstanceHandle(parts.triggerKillPly, 'Enable', '', 0, nil, nil)
+            DoEntFireByInstanceHandle(parts.triggerKillPly_right, 'Enable', '', 0, nil, nil)
         end
         parts.rightTrigger:RedirectOutput('OnStartTouch', 'OnStartTouch', parts.rightTrigger)
 
@@ -902,7 +902,7 @@ function Gamemode:createSliderMonster(origin, angles, callback)
 
             -- Enable the killers
             DoEntFireByInstanceHandle(parts.triggerClash, 'Enable', '', 0, nil, nil)
-            DoEntFireByInstanceHandle(parts.triggerKillPly, 'Enable', '', 0, nil, nil)
+            DoEntFireByInstanceHandle(parts.triggerKillPly_down, 'Enable', '', 0, nil, nil)
         end
         parts.downTrigger:RedirectOutput('OnStartTouch', 'OnStartTouch', parts.downTrigger)
 
@@ -925,7 +925,8 @@ function Gamemode:createSliderMonster(origin, angles, callback)
 
                 -- Disable killers
                 DoEntFireByInstanceHandle(parts.triggerClash, 'Disable', '', 0, nil, nil)
-                DoEntFireByInstanceHandle(parts.triggerKillPly, 'Disable', '', 0, nil, nil)
+                DoEntFireByInstanceHandle(parts.triggerKillPly_right, 'Disable', '', 0, nil, nil)
+                DoEntFireByInstanceHandle(parts.triggerKillPly_down, 'Disable', '', 0, nil, nil)
 
                 -- Reset
                 DoEntFireByInstanceHandle(parts.train, 'StartBackward', '', 0, nil, nil)
@@ -941,7 +942,7 @@ function Gamemode:createSliderMonster(origin, angles, callback)
             The Kill Zones
         ]]
 
-        local scope = parts.triggerKillPly1:GetOrCreatePrivateScriptScope()
+        local scope = parts.triggerKillPly_down:GetOrCreatePrivateScriptScope()
         scope.OnStartTouch = function(args)
             local activator = args.activator
 
@@ -950,9 +951,9 @@ function Gamemode:createSliderMonster(origin, angles, callback)
                 this:killHero()
             end
         end
-        parts.triggerKillPly1:RedirectOutput('OnStartTouch', 'OnStartTouch', parts.triggerKillPly1)
+        parts.triggerKillPly_down:RedirectOutput('OnStartTouch', 'OnStartTouch', parts.triggerKillPly_down)
 
-        local scope = parts.triggerKillPly2:GetOrCreatePrivateScriptScope()
+        local scope = parts.triggerKillPly_right:GetOrCreatePrivateScriptScope()
         scope.OnStartTouch = function(args)
             local activator = args.activator
 
@@ -961,7 +962,7 @@ function Gamemode:createSliderMonster(origin, angles, callback)
                 this:killHero()
             end
         end
-        parts.triggerKillPly2:RedirectOutput('OnStartTouch', 'OnStartTouch', parts.triggerKillPly2)
+        parts.triggerKillPly_right:RedirectOutput('OnStartTouch', 'OnStartTouch', parts.triggerKillPly_right)
 
         --[[
             Resetting
@@ -1012,7 +1013,8 @@ function Gamemode:createSliderMonster(origin, angles, callback)
 
             -- Disable killers
             DoEntFireByInstanceHandle(parts.triggerClash, 'Disable', '', 0, nil, nil)
-            DoEntFireByInstanceHandle(parts.triggerKillPly, 'Disable', '', 0, nil, nil)
+            DoEntFireByInstanceHandle(parts.triggerKillPly_down, 'Disable', '', 0, nil, nil)
+            DoEntFireByInstanceHandle(parts.triggerKillPly_right, 'Disable', '', 0, nil, nil)
 
             -- Reset
             DoEntFireByInstanceHandle(parts.train, 'StartBackward', '', 0, nil, nil)
@@ -1035,7 +1037,8 @@ function Gamemode:createSliderMonster(origin, angles, callback)
 
             -- Disable killers
             DoEntFireByInstanceHandle(parts.triggerClash, 'Disable', '', 0, nil, nil)
-            DoEntFireByInstanceHandle(parts.triggerKillPly, 'Disable', '', 0, nil, nil)
+            DoEntFireByInstanceHandle(parts.triggerKillPly_down, 'Disable', '', 0, nil, nil)
+            DoEntFireByInstanceHandle(parts.triggerKillPly_right, 'Disable', '', 0, nil, nil)
 
             -- Reset
             DoEntFireByInstanceHandle(parts.train, 'StartBackward', '', 0, nil, nil)
@@ -1616,10 +1619,6 @@ end
 
 -- Kills the hero
 function Gamemode:killHero()
-    -- Flash black
-    local deathFade = Entities:FindByName(nil, 'death_fade')
-    DoEntFireByInstanceHandle(deathFade, 'Fade', '', 0, nil, nil)
-
     local hmdEnt = Entities:FindByClassname(nil, 'point_hmd_anchor')
     local marker = Entities:FindByName(nil, 'pathGenerationMarker')
 
@@ -1629,6 +1628,10 @@ function Gamemode:killHero()
         -- Generate the new path
         self:generatePaths(self.pathRemoveNextTime, self.checkpointPos)
     end
+
+    -- Flash red
+    local deathFade = Entities:FindByName(nil, 'death_fade')
+    DoEntFireByInstanceHandle(deathFade, 'Fade', '', 0, nil, nil)
 
     -- Play the sound
     self.ply:EmitSound('hl1.fvox.flatline')
