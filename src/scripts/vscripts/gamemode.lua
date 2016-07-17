@@ -58,7 +58,10 @@ function Gamemode:init(ply, hmd, hand0, hand1)
     -- Init EULA
     self:initEula()
 
-    --self:generatePaths()
+    -- Store the initial spawn pos
+    self.checkpointPos = Entities:FindByName(nil, 'pathGenerationMarker'):GetOrigin()
+
+    self:generatePaths()
 end
 
 function Gamemode:initEula()
@@ -97,7 +100,7 @@ function Gamemode:onThink()
 end
 
 -- Generates paths
-function Gamemode:generatePaths(currentPath)
+function Gamemode:generatePaths(currentPath, newPathOrigin)
     local marker = Entities:FindByName(nil, 'pathGenerationMarker')
     if not marker then
         errorlib:error('Unable to find path generation marker')
@@ -122,10 +125,20 @@ function Gamemode:generatePaths(currentPath)
     end
     self.pathRemoveNextTime = currentPath
 
+    -- If we have a current path
+    if currentPath then
+        currentPath:SetOrigin(Vector(0,0,-1024 * 100))
+    end
+
     -- Create new table
     self.generatedNodes = {}
 
     local middle = marker:GetOrigin()
+
+    if newPathOrigin then
+        middle = newPathOrigin
+        marker:SetOrigin(middle)
+    end
 
     local travelDistance = 64
     local largeTravelDistance = 128
@@ -234,6 +247,7 @@ function Gamemode:handleButtons()
                     --print('Long hold! ' .. handID)
 
                     --self:spawnMelon(handID)
+                    --self:killHero()
                 end
             end
         else
@@ -470,6 +484,7 @@ function Gamemode:initInventory()
     self.myItems[constants.item_bomb] = true
     self.myItems[constants.item_map] = true
     self.myItems[constants.item_boomerang] = true
+    self.myItems[constants.item_key] = true
 
     -- DEBUG: Give all items
     --[[for posNum, itemID in pairs(self.itemOrderList) do
@@ -480,6 +495,7 @@ function Gamemode:initInventory()
 
     -- Start with 0 keys
     self.totalKeys = 0
+    self.totalKeys = 1
 end
 
 -- Go to the next item in a hand
@@ -805,106 +821,260 @@ function Gamemode:spawnAllDoors()
 end
 
 function Gamemode:createSliderMonster(origin, angles, callback)
-    local templateName = 'scary_monster_template'
-    local templateCornerName = 'scary_monster_corner'
-    local templateRightTrigger = 'scary_monster_right_trigger'
-    local templateDownTrigger = 'scary_monster_down_trigger'
-    local templateTrainName = 'scary_monster_train'
-    local templateOriginName = 'scary_monster_origin'
-    local templateStartName = 'scary_monster_start'
-    local templateMoveSoundName = 'scary_monster_sound_move'
-
-    -- Spawn a new door
-    local spawner = Entities:FindByName(nil, templateName)
-    DoEntFireByInstanceHandle(spawner, 'ForceSpawn', '', 0, nil, nil)
-
     local this = self
 
-    -- Grab it after a short delay
-    timers:setTimeout(function()
-        -- Grab door parts
-        local corner = Entities:FindByName(nil, templateCornerName)
-        local rightTrigger = Entities:FindByName(nil, templateRightTrigger)
-        local downTrigger = Entities:FindByName(nil, templateDownTrigger)
-        local train = Entities:FindByName(nil, templateTrainName)
-        local templateOrigin = Entities:FindByName(nil, templateOriginName)
-        local templateStart = Entities:FindByName(nil, templateStartName)
-        local templateMoveSound = Entities:FindByName(nil, templateMoveSoundName)
+    -- Spawn it
+    util:spawnTemplateAndGrab('scary_monster_template', {
+        corner = 'scary_monster_corner',
+        rightTrigger = 'scary_monster_right_trigger',
+        downTrigger = 'scary_monster_down_trigger',
+        train = 'scary_monster_train',
+        origin = 'scary_monster_origin',
+        pathStart = 'scary_monster_start',
+        pathRightEnd = 'scary_monster_right_end',
+        pathDownEnd = 'scary_monster_down_end',
+        soundMove = 'scary_monster_sound_move',
+        soundClash = 'scary_monster_sound_clash',
+        triggerClash = 'scary_monster_callback',
+        triggerKillPly1 = 'scary_monster_ply_killzone1',
+        triggerKillPly2 = 'scary_monster_ply_killzone2'
+    }, function(parts)
+        -- Can we activate?
+        local canActivate = false
+        local soundsEnabled = false
+        local needsReset = false
+
+        --[[
+            The triggers to make the thing move
+        ]]
 
         -- Hook the right trigger
-        local scope = rightTrigger:GetOrCreatePrivateScriptScope()
+        local scope = parts.rightTrigger:GetOrCreatePrivateScriptScope()
         scope.OnStartTouch = function(args)
-            -- Change the direction to move in
-            if IsValidEntity(corner) then
-                DoEntFireByInstanceHandle(corner, 'DisableAlternatePath', '', 0, nil, nil)
-            end
-
-            -- Start moving
-            if IsValidEntity(train) then
-                DoEntFireByInstanceHandle(train, 'SetSpeed', '1', 0, nil, nil)
-                DoEntFireByInstanceHandle(train, 'StartForward', '', 0, nil, nil)
-            end
+            if not canActivate then return end
+            canActivate = false
 
             -- Start the movement sound
-            DoEntFireByInstanceHandle(templateMoveSound, 'StartSound', '', 0, nil, nil)
+            if not this.sliderMoveSound and soundsEnabled then
+                DoEntFireByInstanceHandle(parts.soundMove, 'StartSound', '', 0.01, nil, nil)
+                this.sliderMoveSound = true
+            end
+
+            -- Change the direction to move in
+            DoEntFireByInstanceHandle(parts.corner, 'DisableAlternatePath', '', 0, nil, nil)
+
+            -- Start moving
+            DoEntFireByInstanceHandle(parts.train, 'StartForward', '', 0, nil, nil)
+            DoEntFireByInstanceHandle(parts.train, 'SetSpeed', '1', 0, nil, nil)
 
             -- Disable triggers
-            DoEntFireByInstanceHandle(rightTrigger, 'Disable', '', 0, nil, nil)
-            DoEntFireByInstanceHandle(downTrigger, 'Disable', '', 0, nil, nil)
+            DoEntFireByInstanceHandle(parts.rightTrigger, 'Disable', '', 0, nil, nil)
+            DoEntFireByInstanceHandle(parts.downTrigger, 'Disable', '', 0, nil, nil)
+
+            -- Enable the killers
+            DoEntFireByInstanceHandle(parts.triggerClash, 'Enable', '', 0, nil, nil)
+            DoEntFireByInstanceHandle(parts.triggerKillPly, 'Enable', '', 0, nil, nil)
         end
-        rightTrigger:RedirectOutput('OnStartTouch', 'OnStartTouch', rightTrigger)
+        parts.rightTrigger:RedirectOutput('OnStartTouch', 'OnStartTouch', parts.rightTrigger)
 
         -- Hook the down trigger
-        local scope = downTrigger:GetOrCreatePrivateScriptScope()
+        local scope = parts.downTrigger:GetOrCreatePrivateScriptScope()
         scope.OnStartTouch = function(args)
-            -- Change the direction to move in
-            if IsValidEntity(corner) then
-                DoEntFireByInstanceHandle(corner, 'EnableAlternatePath', '', 0, nil, nil)
-            end
-
-            -- Start moving
-            if IsValidEntity(train) then
-                DoEntFireByInstanceHandle(train, 'SetSpeed', '1', 0, nil, nil)
-                DoEntFireByInstanceHandle(train, 'StartForward', '', 0, nil, nil)
-            end
+            if not canActivate then return end
+            canActivate = false
 
             -- Start the movement sound
-            DoEntFireByInstanceHandle(templateMoveSound, 'StopSound', '', 0, nil, nil)
-            DoEntFireByInstanceHandle(templateMoveSound, 'StartSound', '', 0.01, nil, nil)
+            if not this.sliderMoveSound and soundsEnabled then
+                DoEntFireByInstanceHandle(parts.soundMove, 'StartSound', '', 0.01, nil, nil)
+                this.sliderMoveSound = true
+            end
+
+            -- Change the direction to move in
+            DoEntFireByInstanceHandle(parts.corner, 'EnableAlternatePath', '', 0, nil, nil)
+
+            -- Start moving
+            DoEntFireByInstanceHandle(parts.train, 'SetSpeed', '1', 0, nil, nil)
+            DoEntFireByInstanceHandle(parts.train, 'StartForward', '', 0, nil, nil)
 
             -- Disable triggers
-            DoEntFireByInstanceHandle(rightTrigger, 'Disable', '', 0, nil, nil)
-            DoEntFireByInstanceHandle(downTrigger, 'Disable', '', 0, nil, nil)
-        end
-        downTrigger:RedirectOutput('OnStartTouch', 'OnStartTouch', downTrigger)
+            DoEntFireByInstanceHandle(parts.rightTrigger, 'Disable', '', 0, nil, nil)
+            DoEntFireByInstanceHandle(parts.downTrigger, 'Disable', '', 0, nil, nil)
 
-        -- Hook re-enabling the triggers
-        local scope = templateStart:GetOrCreatePrivateScriptScope()
+            -- Enable the killers
+            DoEntFireByInstanceHandle(parts.triggerClash, 'Enable', '', 0, nil, nil)
+            DoEntFireByInstanceHandle(parts.triggerKillPly, 'Enable', '', 0, nil, nil)
+        end
+        parts.downTrigger:RedirectOutput('OnStartTouch', 'OnStartTouch', parts.downTrigger)
+
+        --[[
+            When the thing gets reset
+        ]]
+
+        local scope = parts.triggerClash:GetOrCreatePrivateScriptScope()
+        scope.OnStartTouch = function(args)
+            local activator = args.activator
+
+            if activator:GetClassname() == 'func_tracktrain' then
+                -- Clash
+                DoEntFireByInstanceHandle(parts.soundMove, 'StopSound', '', 0, nil, nil)
+                this.sliderMoveSound = false
+
+                if soundsEnabled then
+                    DoEntFireByInstanceHandle(parts.soundClash, 'StartSound', '', 0, nil, nil)
+                end
+
+                -- Disable killers
+                DoEntFireByInstanceHandle(parts.triggerClash, 'Disable', '', 0, nil, nil)
+                DoEntFireByInstanceHandle(parts.triggerKillPly, 'Disable', '', 0, nil, nil)
+
+                -- Reset
+                DoEntFireByInstanceHandle(parts.train, 'StartBackward', '', 0, nil, nil)
+                DoEntFireByInstanceHandle(parts.train, 'SetSpeed', '0.1', 0, nil, nil)
+
+                -- We now need a reset
+                needsReset = true
+            end
+        end
+        parts.triggerClash:RedirectOutput('OnStartTouch', 'OnStartTouch', parts.triggerClash)
+
+        --[[
+            The Kill Zones
+        ]]
+
+        local scope = parts.triggerKillPly1:GetOrCreatePrivateScriptScope()
+        scope.OnStartTouch = function(args)
+            local activator = args.activator
+
+            -- Player
+            if activator:GetClassname() == 'player' then
+                this:killHero()
+            end
+        end
+        parts.triggerKillPly1:RedirectOutput('OnStartTouch', 'OnStartTouch', parts.triggerKillPly1)
+
+        local scope = parts.triggerKillPly2:GetOrCreatePrivateScriptScope()
+        scope.OnStartTouch = function(args)
+            local activator = args.activator
+
+            -- Player
+            if activator:GetClassname() == 'player' then
+                this:killHero()
+            end
+        end
+        parts.triggerKillPly2:RedirectOutput('OnStartTouch', 'OnStartTouch', parts.triggerKillPly2)
+
+        --[[
+            Resetting
+        ]]
+
+        local scope = parts.pathStart:GetOrCreatePrivateScriptScope()
         scope.OnPass = function(args)
-            -- Disable triggers
-            DoEntFireByInstanceHandle(rightTrigger, 'Enable', '', 0, nil, nil)
-            DoEntFireByInstanceHandle(downTrigger, 'Enable', '', 0, nil, nil)
-        end
-        templateStart:RedirectOutput('OnPass', 'OnPass', templateStart)
+            if not needsReset then return end
+            needsReset = false
 
-        -- Move into position
-        if IsValidEntity(templateOrigin) then
-            templateOrigin:SetOrigin(origin)
-            templateOrigin:SetAngles(angles.x, angles.y, angles.z)
+            this.trapResetting = this.trapResetting or {}
+            table.insert(this.trapResetting, function()
+                -- Enable it again
+                canActivate = true
+
+                -- Enable triggers
+                DoEntFireByInstanceHandle(parts.rightTrigger, 'Enable', '', 0, nil, nil)
+                DoEntFireByInstanceHandle(parts.downTrigger, 'Enable', '', 0, nil, nil)
+            end)
+
+            -- Run callbacks
+            timers:setTimeout(function()
+                -- Reset callback list
+                local callbacks = this.trapResetting
+                this.trapResetting = {}
+
+                -- Run all callbacks
+                for _,func in pairs(callbacks) do
+                    func()
+                end
+            end, 1)
         end
+        parts.pathStart:RedirectOutput('OnPass', 'OnPass', parts.pathStart)
+
+        --[[
+            It went right to the end
+        ]]
+
+        local scope = parts.pathRightEnd:GetOrCreatePrivateScriptScope()
+        scope.OnPass = function(args)
+            -- Clash
+            DoEntFireByInstanceHandle(parts.soundMove, 'StopSound', '', 0, nil, nil)
+            this.sliderMoveSound = false
+
+            if soundsEnabled then
+                DoEntFireByInstanceHandle(parts.soundClash, 'StartSound', '', 0, nil, nil)
+            end
+
+            -- Disable killers
+            DoEntFireByInstanceHandle(parts.triggerClash, 'Disable', '', 0, nil, nil)
+            DoEntFireByInstanceHandle(parts.triggerKillPly, 'Disable', '', 0, nil, nil)
+
+            -- Reset
+            DoEntFireByInstanceHandle(parts.train, 'StartBackward', '', 0, nil, nil)
+            DoEntFireByInstanceHandle(parts.train, 'SetSpeed', '0.1', 0, nil, nil)
+
+            -- We now need a reset
+            needsReset = true
+        end
+        parts.pathRightEnd:RedirectOutput('OnPass', 'OnPass', parts.pathRightEnd)
+
+        local scope = parts.pathDownEnd:GetOrCreatePrivateScriptScope()
+        scope.OnPass = function(args)
+            -- Clash
+            DoEntFireByInstanceHandle(parts.soundMove, 'StopSound', '', 0, nil, nil)
+            this.sliderMoveSound = false
+
+            if soundsEnabled then
+                DoEntFireByInstanceHandle(parts.soundClash, 'StartSound', '', 0, nil, nil)
+            end
+
+            -- Disable killers
+            DoEntFireByInstanceHandle(parts.triggerClash, 'Disable', '', 0, nil, nil)
+            DoEntFireByInstanceHandle(parts.triggerKillPly, 'Disable', '', 0, nil, nil)
+
+            -- Reset
+            DoEntFireByInstanceHandle(parts.train, 'StartBackward', '', 0, nil, nil)
+            DoEntFireByInstanceHandle(parts.train, 'SetSpeed', '0.1', 0, nil, nil)
+
+            -- We now need a reset
+            needsReset = true
+        end
+        parts.pathDownEnd:RedirectOutput('OnPass', 'OnPass', parts.pathDownEnd)
+
+        --[[
+            Move into position
+        ]]
+
+        -- Set origin
+        parts.origin:SetOrigin(origin)
+        parts.origin:SetAngles(angles.x, angles.y, angles.z)
 
         -- Start forward
-        DoEntFireByInstanceHandle(train, 'SetSpeed', '1', 0, nil, nil)
-        DoEntFireByInstanceHandle(train, 'StartForward', '', 0, nil, nil)
+        DoEntFireByInstanceHandle(parts.train, 'SetSpeed', '1', 0, nil, nil)
+        DoEntFireByInstanceHandle(parts.train, 'StartForward', '', 0, nil, nil)
 
         -- Reset
-        DoEntFireByInstanceHandle(train, 'SetSpeed', '0.2', 0.1, nil, nil)
-        DoEntFireByInstanceHandle(train, 'StartBackward', '', 0.1, nil, nil)
+        DoEntFireByInstanceHandle(parts.train, 'SetSpeed', '0.2', 0.1, nil, nil)
+        DoEntFireByInstanceHandle(parts.train, 'StartBackward', '', 0.1, nil, nil)
 
+        -- We can now activate
+        canActivate = true
+
+        -- Enable the sounds after a short delay
+        timers:setTimeout(function()
+            soundsEnabled = true
+        end, 1)
+
+        -- If we have a callback, run it
         if callback then
             callback()
         end
-    end, 0.1)
+    end)
 end
 
 function Gamemode:spawnAllSliderMonsters()
@@ -1442,6 +1612,26 @@ function Gamemode:unlockRoomsForMapEntity(mapEntity)
         -- Show this room on the map
         DoEntFireByInstanceHandle(mapEntity, 'AddCSSClass', roomName, 0, nil, nil)
     end
+end
+
+-- Kills the hero
+function Gamemode:killHero()
+    -- Flash black
+    local deathFade = Entities:FindByName(nil, 'death_fade')
+    DoEntFireByInstanceHandle(deathFade, 'Fade', '', 0, nil, nil)
+
+    local hmdEnt = Entities:FindByClassname(nil, 'point_hmd_anchor')
+    local marker = Entities:FindByName(nil, 'pathGenerationMarker')
+
+    if hmdEnt and marker then
+        hmdEnt:SetOrigin(self.checkpointPos)
+
+        -- Generate the new path
+        self:generatePaths(self.pathRemoveNextTime, self.checkpointPos)
+    end
+
+    -- Play the sound
+    self.ply:EmitSound('hl1.fvox.flatline')
 end
 
 -- Export the gamemode

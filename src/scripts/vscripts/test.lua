@@ -1,7 +1,33 @@
-local timers = require('util.timers')
-local enemyController = require('enemy_controller')
-local enemyBird = require('enemy_bird')
-local util = require('util')
+--local timers = require('util.timers')
+--local enemyController = require('enemy_controller')
+--local enemyBird = require('enemy_bird')
+--local util = require('util')
+
+--[[local ply
+local pather
+
+local ent = Entities:First()
+while ent do
+    local className = ent:GetClassname()
+    --print(className)
+
+    if className == 'player' then
+        ply = ent
+    end
+
+    print(ent:GetName())
+    if ent:GetName() == 'collectable_arrow' then
+        pather = ent
+    end
+
+    ent = Entities:Next(ent)
+end]]
+
+
+--local ply = Entities:FindByClassname(nil, 'player')
+--local pather = Entities:FindByName(nil, 'pathGenerationMarker')
+
+--ply:SetOrigin(Vector(0,0,0))
 
 --[[local ent = Entities:First()
 
@@ -219,7 +245,7 @@ DoEntFireByInstanceHandle(monster, 'StartForward', '', 0, nil, nil)]]
 
 
 
-local ourPos = Vector(-1408.000000,-256.000000,56.000000)
+--[[local ourPos = Vector(-1408.000000,-256.000000,56.000000)
 
 print(util:isSolid(ourPos, 3, 512))
 
@@ -231,4 +257,4 @@ local data = {
 }
 local res = TraceLine(data)
 
-print(util:traceWorld(ourPos, ourPos + Vector(0, 128, 0)))
+print(util:traceWorld(ourPos, ourPos + Vector(0, 128, 0)))]]
