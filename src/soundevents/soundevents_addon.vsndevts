@@ -70,4 +70,28 @@
             "sounds/hl1/fvox/flatline.vsnd",
         ]
     }
+
+    items.ammo_pickup =
+    {
+        type = "destinations.simple_2d"
+        volume = 1.0
+        pitch = 1.0
+        delay = 0.0
+        vsnd_files =
+        [
+            "sounds/items/ammo_pickup.vsnd",
+        ]
+    }
+
+    npc.combine_gunship.gunship_pain =
+    {
+        type = "destinations.simple_2d"
+        volume = 0.1
+        pitch = 1.0
+        delay = 0.0
+        vsnd_files =
+        [
+            "sounds/npc/combine_gunship/gunship_pain.vsnd",
+        ]
+    }
 }

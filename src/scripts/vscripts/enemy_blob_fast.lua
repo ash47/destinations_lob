@@ -5,13 +5,13 @@ local util = require('util')
 local enemyController = require('enemy_controller')
 
 -- Define a new class
-local enemyBlob = class(enemyController)
+local enemyBlobFast = class(enemyController)
 
-function enemyBlob:subInit(callback)
+function enemyBlobFast:subInit(callback)
     local this = self
 
-    -- Only two hits to kill this guy
-    self.hp = 2
+    -- Only three hits to kill this guy
+    self.hp = 3
 
     util:spawnTemplateAndGrab('template_enemy_blob_template', {
         origin = 'template_enemy_blob_origin',
@@ -35,12 +35,12 @@ function enemyBlob:subInit(callback)
     end)
 end
 
-function enemyBlob:onReady()
+function enemyBlobFast:onReady()
     -- Start moving
     self:doMovement({
-        delay = 3
+        delay = 1
     })
 end
 
 -- Return the new enemy
-return enemyBlob
+return enemyBlobFast

@@ -5,6 +5,7 @@ local errorlib = require('util.errorlib')
 local util = require('util')
 
 local enemyBlob = require('enemy_blob')
+local enemyBlobFast = require('enemy_blob_fast')
 
 -- Define the gamemode
 local Gamemode = {}
@@ -61,7 +62,7 @@ function Gamemode:init(ply, hmd, hand0, hand1)
     -- Store the initial spawn pos
     self.checkpointPos = Entities:FindByName(nil, 'pathGenerationMarker'):GetOrigin()
 
-    self:generatePaths()
+    --self:generatePaths()
 end
 
 function Gamemode:initEula()
@@ -484,7 +485,7 @@ function Gamemode:initInventory()
     self.myItems[constants.item_bomb] = true
     self.myItems[constants.item_map] = true
     self.myItems[constants.item_boomerang] = true
-    self.myItems[constants.item_key] = true
+    --self.myItems[constants.item_key] = true
 
     -- DEBUG: Give all items
     --[[for posNum, itemID in pairs(self.itemOrderList) do
@@ -495,7 +496,7 @@ function Gamemode:initInventory()
 
     -- Start with 0 keys
     self.totalKeys = 0
-    self.totalKeys = 1
+    --self.totalKeys = 1
 end
 
 -- Go to the next item in a hand
@@ -713,41 +714,38 @@ function Gamemode:onKeyUsed()
 end
 
 function Gamemode:createDoor(origin, angles, callback)
-    local doorTemplateName = 'door_1_template'
-    local doorPartsName = {
-        [1] = 'door_1_door_a',
-        [2] = 'door_1_door_b',
-        [3] = 'door_1_door_c',
-        [4] = 'door_1_door_d'
-    }
-    local doorOriginName = 'door_1_origin'
-    local doorTriggerName = 'door_1_trigger'
-    local doorLockName = 'door_1_lock'
-    local doorSoundName = 'door_1_sound'
-
-    -- Spawn a new door
-    local spawner = Entities:FindByName(nil, doorTemplateName)
-    DoEntFireByInstanceHandle(spawner, 'ForceSpawn', '', 0, nil, nil)
-
     local this = self
 
-    -- Grab it after a short delay
-    timers:setTimeout(function()
-        -- Grab door parts
-        local doorOrigin = Entities:FindByName(nil, doorOriginName)
-        local doorTrigger = Entities:FindByName(nil, doorTriggerName)
-        local doorLock = Entities:FindByName(nil, doorLockName)
-        local doorSound = Entities:FindByName(nil, doorSoundName)
+    util:spawnTemplateAndGrab('door_1_template', {
+        doorA = 'door_1_door_a',
+        doorB = 'door_1_door_b',
+        doorC = 'door_1_door_c',
+        doorD = 'door_1_door_d',
 
-        local doorParts = {}
-        for _,doorPartName in pairs(doorPartsName) do
-            table.insert(doorParts, Entities:FindByName(nil, doorPartName))
-        end
+        origin = 'door_1_origin',
+        trigger = 'door_1_trigger',
+        lock = 'door_1_lock',
+        soundUnlock = 'door_1_sound',
+
+        solid = 'door_1_door_solid'
+    }, function(parts)
+        local doorParts = {
+            [1] = parts.doorA,
+            [2] = parts.doorB,
+            [3] = parts.doorC,
+            [4] = parts.doorD
+        }
 
         local isDoorOpen = false
 
+        local trigger = parts.trigger
+        local doorOrigin = parts.origin
+        local doorSound = parts.soundUnlock
+        local doorLock = parts.lock
+        local doorSolid = parts.solid
+
         -- Hook the trigger
-        local scope = doorTrigger:GetOrCreatePrivateScriptScope()
+        local scope = trigger:GetOrCreatePrivateScriptScope()
         scope.OnStartTouch = function(args)
             -- Check what just collided
             local activator = args.activator
@@ -768,6 +766,16 @@ function Gamemode:createDoor(origin, angles, callback)
                 DoEntFireByInstanceHandle(doorLock, 'Disable', '', 0, nil, nil)
             end
 
+            -- Disable the trigger
+            if IsValidEntity(trigger) then
+                DoEntFireByInstanceHandle(trigger, 'Disable', '', 0, nil, nil)
+            end
+
+            -- Remove the solid part
+            if IsValidEntity(doorSolid) then
+                doorSolid:RemoveSelf()
+            end
+
             for _,doorPart in pairs(doorParts) do
                 -- Open the doors
                 if IsValidEntity(doorPart) then
@@ -775,10 +783,13 @@ function Gamemode:createDoor(origin, angles, callback)
                 end
             end
 
+            -- Recalculate paths
+            this:generatePaths(this.pathRemoveNextTime)
+
             -- The key has now been used
             this:onKeyUsed()
         end
-        doorTrigger:RedirectOutput('OnStartTouch', 'OnStartTouch', doorTrigger)
+        trigger:RedirectOutput('OnStartTouch', 'OnStartTouch', trigger)
 
         -- Move into position
         if IsValidEntity(doorOrigin) then
@@ -789,7 +800,7 @@ function Gamemode:createDoor(origin, angles, callback)
         if callback then
             callback()
         end
-    end, 0.1)
+    end)
 end
 
 function Gamemode:spawnAllDoors()
@@ -1260,6 +1271,19 @@ function Gamemode:spawnMobs()
         },
         reward = constants.reward_key
     })
+
+    -- Boss room
+    self:spawnRoom({
+        spawnPos = Entities:FindByName(nil, 'spawn_room_boss'):GetOrigin(),
+        enemies = {
+            boomerangs = {
+                count = 10,
+                createEnemy = enemyBlobFast,
+                needsKilling = true
+            }
+        },
+        reward = 'special_unlock_boss_door'
+    })
 end
 
 -- Spawns a room full of enemies
@@ -1307,6 +1331,22 @@ function Gamemode:spawnRoom(options)
                 totalEnemiesAlive = totalEnemiesAlive + 1
             end
 
+            if enemy.parts and enemy.parts.trigger then
+                local deathTrigger = enemy.parts.trigger
+
+                local scope = deathTrigger:GetOrCreatePrivateScriptScope()
+                scope.OnStartTouch = function(args)
+                    local activator = args.activator
+
+                    -- Player
+                    if activator:GetClassname() == 'player' then
+                        -- Kill the player
+                        this:killHero()
+                    end
+                end
+                deathTrigger:RedirectOutput('OnStartTouch', 'OnStartTouch', deathTrigger)
+            end
+
             controller:addCallback('onDie', function(info)
                 if needsKilling then
                     totalEnemiesAlive = totalEnemiesAlive - 1
@@ -1336,6 +1376,19 @@ function Gamemode:spawnRoom(options)
                             local theDoor = Entities:FindByName(nil, 'slider_door_2b')
                             if theDoor then
                                 DoEntFireByInstanceHandle(theDoor, 'Close', '', 0, nil, nil)
+                            end
+                        end
+
+                        -- Unlocks the boss door
+                        if theReward == 'special_unlock_boss_door' then
+                            local theDoor = Entities:FindByName(nil, 'slider_door_3a')
+                            if theDoor then
+                                DoEntFireByInstanceHandle(theDoor, 'Open', '', 0, nil, nil)
+                            end
+
+                            local theDoor = Entities:FindByName(nil, 'slider_door_3b')
+                            if theDoor then
+                                DoEntFireByInstanceHandle(theDoor, 'Open', '', 0, nil, nil)
                             end
                         end
 
@@ -1371,6 +1424,8 @@ end
 
 -- Creates an explosion at the given point
 function Gamemode:createExplosion(origin)
+    local this = self
+
     util:spawnTemplateAndGrab('explosion_sample_template', {
             explosion = 'explosion_sample'
         }, function(parts)
@@ -1383,6 +1438,7 @@ function Gamemode:createExplosion(origin)
             local explodeSound = Entities:FindByName(nil, 'sound_explode')
             DoEntFireByInstanceHandle(explodeSound, 'StartSound', '', 0, nil, nil)
 
+            local brokeSomething = false
 
             -- Find stuff to cause damage to
             local ents = Entities:FindAllInSphere(origin, 64)
@@ -1395,8 +1451,14 @@ function Gamemode:createExplosion(origin)
                 end
 
                 if ent.breakOnExplode then
-                    DoEntFireByInstanceHandle(ent, 'Break', '', 0, nil, nil)
+                    ent:RemoveSelf()
+                    brokeSomething = true
                 end
+            end
+
+            -- If we broke something, regenerate the paths
+            if brokeSomething then
+                this:generatePaths(this.pathRemoveNextTime)
             end
 
             -- Remove the explosion ent after a delay
@@ -1447,6 +1509,16 @@ function Gamemode:onCollectKey(ent)
     -- Increase the number of keys we have
     self.totalKeys = self.totalKeys + 1
     self.myItems[constants.item_key] = true
+
+    -- Play a sound
+    self:playCollectSound()
+end
+
+-- Plays the collect sound
+function Gamemode:playCollectSound()
+    -- Play the sound
+    local theSound = Entities:FindByName(nil, 'sound_collect')
+    DoEntFireByInstanceHandle(theSound, 'StartSound', '', 0, nil, nil)
 end
 
 -- Handles picking up a bow
@@ -1464,6 +1536,9 @@ function Gamemode:handleBowPickup()
                 collectModel:RemoveSelf()
 
                 this.myItems[constants.item_bow] = true
+
+                -- Play a sound
+                self:playCollectSound()
             end
         end
         bowTrigger:RedirectOutput('OnStartTouch', 'OnStartTouch', bowTrigger)
@@ -1548,6 +1623,9 @@ function Gamemode:onCollectItem(ent, itemID)
     else
         print('Unknown item handle!')
     end
+
+    -- Play a sound
+    self:playCollectSound()
 end
 
 -- Called when we enter a new room

@@ -8,12 +8,12 @@ function util:traceWorld(startPos, endPos)
     local data = {
         startpos = startPos,
         endpos = endPos,
-        mask = 33570827,
+        mask = 255    -- https://wiki.garrysmod.com/page/Enums/CONTENTS
 
     }
     local res = TraceLine(data)
 
-    return data.hit
+    return data.hit or (data.enthit and true)
 end
 
 -- Decides if we can move in a given direction

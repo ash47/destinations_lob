@@ -152,6 +152,10 @@ function enemyController:onHit()
         this.cantHurt = false
     end, 0.1)
 
+    -- Scream in pain
+    local theSound = Entities:FindByName(nil, 'sound_pain')
+    DoEntFireByInstanceHandle(theSound, 'StartSound', '', 0, nil, nil)
+
     -- Take damage
     self.hp = self.hp - 1
 
