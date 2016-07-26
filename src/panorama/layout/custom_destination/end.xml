@@ -8,7 +8,7 @@
 	<ClientUIDialogPanel class="InWorldInfoPanel">
 		<Panel class="Page" id="CameraPositionsDialog">
 			<Panel class="TextArea WithButtons">
-				<Label class="Title" text="Legend of Zelda: A tech demo" />
+				<Label class="Title" text="Legend of Blelda: A tech demo" />
 				<Label class="Desc" text="Thanks for playing! That's all for now.\n\nPlease leave feedback on the workshop page, if people like this, I may improve it, expand or, or make another demo!\n\nIf you like Dota 2, I made a workshop addon for that too called 'Legends of Dota', check it out!\n\nKind Regards,\nAsh47" />
 			</Panel>
 		</Panel>

@@ -8,8 +8,8 @@
 	<ClientUIDialogPanel class="InWorldInfoPanel">
 		<Panel class="Page" id="CameraPositionsDialog">
 			<Panel class="TextArea WithButtons">
-				<Label class="Title" text="Legend of Zelda: A tech demo" />
-				<Label class="Desc" text="Welcome to the tech demo by Ash47!\n\nSqueeze / press the hand grip to change weapons / items. Some weapons use the trigger to shoot.\n\nYou start with the following items:\n - Sword\n - Shield\n - Basic Boomerang\n - Bombs\n - A Map (This fills out as you walk around)\n\nKilling all the enemies in a room may result in a reward / event being triggered.\n\nYour goal is to kill the boss and get to the triforce room.\n\nClick Play to start!" />
+				<Label class="Title" text="Legend of Blelda: A tech demo" />
+				<Label class="Desc" text="Welcome to the tech demo by Ash47!\n\nSqueeze / press the hand grip to change weapons / items. Some weapons use the trigger to shoot.\n\nYou start with the following items:\n - Sword\n - Shield\n - Basic Boomerang\n - Bombs\n - A Map (This fills out as you walk around)\n\nKilling all the enemies in a room may result in a reward / event being triggered.\n\nYour goal is to kill the boss and get to the quad force room.\n\nClick Play to start!" />
 			</Panel>
 
 			<Panel class="InfoDialogButton">
