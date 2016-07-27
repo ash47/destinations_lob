@@ -68,9 +68,9 @@ function Gamemode:init(ply, hmd, hand0, hand1)
     music:init()
 
     -- test music
-    music:playRandom()
+    --music:playRandom()
 
-    self:generatePaths()
+    --self:generatePaths()
 end
 
 function Gamemode:initEula()
@@ -97,6 +97,9 @@ function Gamemode:onAcceptedEULA()
     -- Remove EULA
     local eulaEnt = Entities:FindByName(nil, 'info_eula')
     eulaEnt:RemoveSelf()
+
+    -- Start music
+    music:playRandom()
 end
 
 -- Gamemode think function
@@ -493,18 +496,18 @@ function Gamemode:initInventory()
     self.myItems[constants.item_bomb] = true
     self.myItems[constants.item_map] = true
     self.myItems[constants.item_boomerang] = true
-    self.myItems[constants.item_key] = true
+    --self.myItems[constants.item_key] = true
 
     -- DEBUG: Give all items
     --[[for posNum, itemID in pairs(self.itemOrderList) do
         self.myItems[itemID] = true
     end]]
 
-    self.myItems[constants.item_bow] = true
+    --self.myItems[constants.item_bow] = true
 
     -- Start with 0 keys
     self.totalKeys = 0
-    self.totalKeys = 1
+    --self.totalKeys = 1
 end
 
 -- Go to the next item in a hand
