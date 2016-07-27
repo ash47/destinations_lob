@@ -67,7 +67,7 @@
         delay = 0.0
         vsnd_files =
         [
-            "sounds/hl1/fvox/flatline.vsnd",
+            "sounds/hl1/fvox/flatline.vsnd"
         ]
     }
 
@@ -79,7 +79,7 @@
         delay = 0.0
         vsnd_files =
         [
-            "sounds/items/ammo_pickup.vsnd",
+            "sounds/items/ammo_pickup.vsnd"
         ]
     }
 
@@ -91,7 +91,214 @@
         delay = 0.0
         vsnd_files =
         [
-            "sounds/npc/combine_gunship/gunship_pain.vsnd",
+            "sounds/npc/combine_gunship/gunship_pain.vsnd"
+        ]
+    }
+
+    npc.combine_gunship.gunship_pain_loud =
+    {
+        type = "destinations.simple_2d"
+        volume = 1.0
+        pitch = 1.0
+        delay = 0.0
+        vsnd_files =
+        [
+            "sounds/npc/combine_gunship/gunship_pain.vsnd"
+        ]
+    }
+
+    npc.strider.striderx_die1 =
+    {
+        type = "destinations.simple_2d"
+        volume = 1.0
+        pitch = 1.0
+        delay = 0.0
+        vsnd_files =
+        [
+            "sounds/npc/strider/striderx_die1.vsnd"
+        ]
+    }
+
+    npc.combine_gunship.gunship_scream =
+    {
+        type = "destinations.simple_2d"
+        volume = 1.0
+        pitch = 1.0
+        delay = 0.0
+        vsnd_files =
+        [
+            "sounds/npc/combine_gunship/see_enemy.vsnd"
+        ]
+    }
+
+    ambient.explosions.explode_9 =
+    {
+        type = "destinations.simple_2d"
+        volume = 2.0
+        pitch = 1.0
+        delay = 0.0
+        vsnd_files =
+        [
+            "sounds/ambient/explosions/explode_9.vsnd"
+        ]
+    }
+
+    npc.combine_gunship.gunship_fire_loop1 =
+    {
+        type = "destinations.simple_2d"
+        volume = 1.0
+        pitch = 1.0
+        delay = 0.0
+        vsnd_files =
+        [
+            "sounds/npc/combine_gunship/gunship_fire_loop1.vsnd"
+        ]
+    }
+
+    physics.concrete.boulder_impact_hard1 =
+    {
+        type = "destinations.simple_2d"
+        volume = 1.0
+        pitch = 1.0
+        delay = 0.0
+        vsnd_files =
+        [
+            "sounds/physics/concrete/boulder_impact_hard1.vsnd",
+            "sounds/physics/concrete/boulder_impact_hard2.vsnd",
+            "sounds/physics/concrete/boulder_impact_hard3.vsnd",
+            "sounds/physics/concrete/boulder_impact_hard4.vsnd"
+        ]
+    }
+
+    music.hl1_song15 =
+    {
+        type = "destinations.simple_2d"
+        volume = 1.0
+        pitch = 1.0
+        delay = 0.0
+        vsnd_files =
+        [
+            "sounds/music/hl1_song15.vsnd"
+        ]
+    }
+
+    music.hl1_song17 =
+    {
+        type = "destinations.simple_2d"
+        volume = 1.0
+        pitch = 1.0
+        delay = 0.0
+        vsnd_files =
+        [
+            "sounds/music/hl1_song17.vsnd"
+        ]
+    }
+
+    music.hl2_song4 =
+    {
+        type = "destinations.simple_2d"
+        volume = 1.0
+        pitch = 1.0
+        delay = 0.0
+        vsnd_files =
+        [
+            "sounds/music/hl2_song4.vsnd"
+        ]
+    }
+
+    music.hl2_song12_long =
+    {
+        type = "destinations.simple_2d"
+        volume = 1.0
+        pitch = 1.0
+        delay = 0.0
+        vsnd_files =
+        [
+            "sounds/music/hl2_song12_long.vsnd"
+        ]
+    }
+
+    music.hl2_song14 =
+    {
+        type = "destinations.simple_2d"
+        volume = 1.0
+        pitch = 1.0
+        delay = 0.0
+        vsnd_files =
+        [
+            "sounds/music/hl2_song14.vsnd"
+        ]
+    }
+
+    music.hl2_song16 =
+    {
+        type = "destinations.simple_2d"
+        volume = 1.0
+        pitch = 1.0
+        delay = 0.0
+        vsnd_files =
+        [
+            "sounds/music/hl2_song16.vsnd"
+        ]
+    }
+
+    music.hl2_song20_submix0 =
+    {
+        type = "destinations.simple_2d"
+        volume = 1.0
+        pitch = 1.0
+        delay = 0.0
+        vsnd_files =
+        [
+            "sounds/music/hl2_song20_submix0.vsnd"
+        ]
+    }
+
+    music.hl2_song29 =
+    {
+        type = "destinations.simple_2d"
+        volume = 1.0
+        pitch = 1.0
+        delay = 0.0
+        vsnd_files =
+        [
+            "sounds/music/hl2_song29.vsnd"
+        ]
+    }
+
+    music.hl2_song31 =
+    {
+        type = "destinations.simple_2d"
+        volume = 1.0
+        pitch = 1.0
+        delay = 0.0
+        vsnd_files =
+        [
+            "sounds/music/hl2_song31.vsnd"
+        ]
+    }
+
+    music.hl2_song10 =
+    {
+        type = "destinations.simple_2d"
+        volume = 1.0
+        pitch = 1.0
+        delay = 0.0
+        vsnd_files =
+        [
+            "sounds/music/hl2_song31.vsnd"
+        ]
+    }
+
+    music.hl1_song25_remix3 =
+    {
+        type = "destinations.simple_2d"
+        volume = 1.0
+        pitch = 1.0
+        delay = 0.0
+        vsnd_files =
+        [
+            "sounds/music/hl1_song25_remix3.vsnd"
         ]
     }
 }

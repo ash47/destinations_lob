@@ -3,12 +3,14 @@ local constants = require('constants')
 local timers = require('util.timers')
 local errorlib = require('util.errorlib')
 local util = require('util')
+local music = require('music')
 
 local enemyBlob = require('enemy_blob')
 local enemyBlobFast = require('enemy_blob_fast')
+local enemyBoss = require('enemy_boss')
 
 -- Define the gamemode
-local Gamemode = {}
+local Gamemode = class({})
 
 -- Init gamemode
 function Gamemode:init(ply, hmd, hand0, hand1)
@@ -62,7 +64,13 @@ function Gamemode:init(ply, hmd, hand0, hand1)
     -- Store the initial spawn pos
     self.checkpointPos = Entities:FindByName(nil, 'pathGenerationMarker'):GetOrigin()
 
-    --self:generatePaths()
+    -- Init music
+    music:init()
+
+    -- test music
+    music:playRandom()
+
+    self:generatePaths()
 end
 
 function Gamemode:initEula()
@@ -485,18 +493,18 @@ function Gamemode:initInventory()
     self.myItems[constants.item_bomb] = true
     self.myItems[constants.item_map] = true
     self.myItems[constants.item_boomerang] = true
-    --self.myItems[constants.item_key] = true
+    self.myItems[constants.item_key] = true
 
     -- DEBUG: Give all items
     --[[for posNum, itemID in pairs(self.itemOrderList) do
         self.myItems[itemID] = true
     end]]
 
-    --self.myItems[constants.item_bow] = false
+    self.myItems[constants.item_bow] = true
 
     -- Start with 0 keys
     self.totalKeys = 0
-    --self.totalKeys = 1
+    self.totalKeys = 1
 end
 
 -- Go to the next item in a hand
@@ -1117,6 +1125,20 @@ function Gamemode:spawnMobs()
     -- Backlog of rooms to spawn
     self.spawningRoomBackLog = {}
 
+    -- Boss room
+    self:spawnRoom({
+        spawnPos = Entities:FindByName(nil, 'spawn_room_boss'):GetOrigin(),
+        enemies = {
+            boss = {
+                count = 1,
+                createEnemy = enemyBoss,
+                needsKilling = true
+            }
+        },
+        reward = 'special_unlock_boss_door'
+    })
+
+
     -- 1: Left bat room
     self:spawnRoom({
         spawnPos = Entities:FindByName(nil, 'spawn_room_left_1'):GetOrigin(),
@@ -1226,7 +1248,7 @@ function Gamemode:spawnMobs()
         enemies = {
             boomerangs = {
                 count = 3,
-                createEnemy = enemyBlob,
+                createEnemy = enemyBlobFast,
                 needsKilling = true
             }
         },
@@ -1272,18 +1294,7 @@ function Gamemode:spawnMobs()
         reward = constants.reward_key
     })
 
-    -- Boss room
-    self:spawnRoom({
-        spawnPos = Entities:FindByName(nil, 'spawn_room_boss'):GetOrigin(),
-        enemies = {
-            boomerangs = {
-                count = 10,
-                createEnemy = enemyBlobFast,
-                needsKilling = true
-            }
-        },
-        reward = 'special_unlock_boss_door'
-    })
+
 end
 
 -- Spawns a room full of enemies
@@ -1635,6 +1646,27 @@ function Gamemode:onEnterRoom(name)
 
     -- Ensure the room is unlocked
     self:unlockMapRoom(name);
+
+    -- Boss start
+    if name == 'map_5_right_right' then
+        -- Make the boss look at the player the first time
+        if _G.theBoss and _G.theBoss.lookAtPlayer then
+            _G.theBoss:lookAtPlayer()
+        end
+
+        -- Set the checkpoint to the boss
+        self.checkpointPos = Entities:FindByName(nil, 'checkpoint_boss_room'):GetOrigin()
+    end
+
+    -- Checkpoint before the smashers
+    if name == 'map_6_mid' then
+        self.checkpointPos = Entities:FindByName(nil, 'checkpoint_smashers'):GetOrigin()
+    end
+
+    -- End of game?
+    if name == 'map_5_right_right_right' then
+        music:onGameEnd()
+    end
 end
 
 -- Unlocks a map room

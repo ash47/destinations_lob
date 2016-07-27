@@ -28,8 +28,14 @@ function OnHMDAvatarAndHandsSpawned()
             return
         end
 
+        -- Create a new gamemode
+        local theGamemode = gamemode()
+
+        -- Store a reference
+        _G.theGamemode = theGamemode
+
         -- Init the gamemode
-        gamemode:init(ply, hmd, hand0, hand1)
+        theGamemode:init(ply, hmd, hand0, hand1)
     end, 0)
 end
 

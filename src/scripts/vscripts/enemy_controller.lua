@@ -156,6 +156,13 @@ function enemyController:onHit()
     local theSound = Entities:FindByName(nil, 'sound_pain')
     DoEntFireByInstanceHandle(theSound, 'StartSound', '', 0, nil, nil)
 
+    if this.parts and this.parts.model then
+        local theModel = this.parts.model
+
+        DoEntFireByInstanceHandle(theModel, 'color', '255 0 0', 0, nil, nil)
+        DoEntFireByInstanceHandle(theModel, 'color', '255 255 255', 0.1, nil, nil)
+    end
+
     -- Take damage
     self.hp = self.hp - 1
 
