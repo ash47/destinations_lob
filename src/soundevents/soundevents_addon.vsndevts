@@ -86,7 +86,7 @@
     npc.combine_gunship.gunship_pain =
     {
         type = "destinations.simple_2d"
-        volume = 0.1
+        volume = 0.5
         pitch = 1.0
         delay = 0.0
         vsnd_files =
@@ -173,7 +173,7 @@
     music.hl1_song15 =
     {
         type = "destinations.simple_2d"
-        volume = 1.0
+        volume = 0.5
         pitch = 1.0
         delay = 0.0
         vsnd_files =
@@ -185,7 +185,7 @@
     music.hl1_song17 =
     {
         type = "destinations.simple_2d"
-        volume = 1.0
+        volume = 0.5
         pitch = 1.0
         delay = 0.0
         vsnd_files =
@@ -197,7 +197,7 @@
     music.hl2_song4 =
     {
         type = "destinations.simple_2d"
-        volume = 1.0
+        volume = 0.5
         pitch = 1.0
         delay = 0.0
         vsnd_files =
@@ -209,7 +209,7 @@
     music.hl2_song12_long =
     {
         type = "destinations.simple_2d"
-        volume = 1.0
+        volume = 0.5
         pitch = 1.0
         delay = 0.0
         vsnd_files =
@@ -221,7 +221,7 @@
     music.hl2_song14 =
     {
         type = "destinations.simple_2d"
-        volume = 1.0
+        volume = 0.5
         pitch = 1.0
         delay = 0.0
         vsnd_files =
@@ -233,7 +233,7 @@
     music.hl2_song16 =
     {
         type = "destinations.simple_2d"
-        volume = 1.0
+        volume = 0.5
         pitch = 1.0
         delay = 0.0
         vsnd_files =
@@ -245,7 +245,7 @@
     music.hl2_song20_submix0 =
     {
         type = "destinations.simple_2d"
-        volume = 1.0
+        volume = 0.5
         pitch = 1.0
         delay = 0.0
         vsnd_files =
@@ -257,7 +257,7 @@
     music.hl2_song29 =
     {
         type = "destinations.simple_2d"
-        volume = 1.0
+        volume = 0.5
         pitch = 1.0
         delay = 0.0
         vsnd_files =
@@ -269,7 +269,7 @@
     music.hl2_song31 =
     {
         type = "destinations.simple_2d"
-        volume = 1.0
+        volume = 0.5
         pitch = 1.0
         delay = 0.0
         vsnd_files =
@@ -281,7 +281,7 @@
     music.hl2_song10 =
     {
         type = "destinations.simple_2d"
-        volume = 1.0
+        volume = 0.5
         pitch = 1.0
         delay = 0.0
         vsnd_files =
@@ -293,7 +293,7 @@
     music.hl1_song25_remix3 =
     {
         type = "destinations.simple_2d"
-        volume = 1.0
+        volume = 0.5
         pitch = 1.0
         delay = 0.0
         vsnd_files =
