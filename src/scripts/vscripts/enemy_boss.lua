@@ -137,7 +137,7 @@ function enemyBoss:hookTriggers()
     -- Can we enter into a new action?
     self.canPerformAction = true
     self.canTakeDamage = true
-    self.hp = 3
+    self.hp = 10
 
     local this = self
 
