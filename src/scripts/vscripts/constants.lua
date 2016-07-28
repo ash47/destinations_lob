@@ -3,13 +3,13 @@ local Constants = {}
 
 -- Hand0 Hand VR Buttons
 Constants.hand0_dpad = bit.lshift(1, 0)
-Constants.hand0_trigger = bit.lshift(1, 1)
+Constants.hand0_trigger = bit.lshift(1, 24)
 Constants.hand0_top_button = bit.lshift(1, 3)
-Constants.hand0_grip = bit.lshift(1, 4)
+Constants.hand0_grip = bit.lshift(1, 31)
 
 -- Hand1 Hand VR Buttons
 Constants.hand1_dpad = bit.lshift(1, 16)
-Constants.hand1_trigger = bit.lshift(1, 17)
+Constants.hand1_trigger = bit.lshift(1, 25)
 Constants.hand1_top_button = bit.lshift(1, 19)
 Constants.hand1_grip = bit.lshift(1, 20)
 

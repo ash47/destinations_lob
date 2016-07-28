@@ -219,10 +219,6 @@ function Gamemode:generatePathNode(pos)
     return ent
 end
 
-function Gamemode:test()
-    print('test')
-end
-
 -- Init buttons
 function Gamemode:initButtons()
     -- Stored which buttons were pressed last frame
@@ -240,6 +236,10 @@ end
 function Gamemode:handleButtons()
     -- Grab useful variables
     local ply = self.ply
+
+    --[[for i=0,31 do
+        print(i, ply:IsVRControllerButtonPressed(bit.lshift(1, i)))
+    end]]
 
     -- Process both hands
     for handID=0,1 do
