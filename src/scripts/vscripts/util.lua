@@ -40,9 +40,21 @@ function util:isSolid(startPos, dir, distance)
 end
 
 -- Spawns a template and runs the callback with the new ent
+local isCurrentlySpawning = false
+local spawnQueue = {}
 function util:spawnTemplateAndGrab(templateName, parts, callback)
+    if isCurrentlySpawning then
+        table.insert(spawnQueue, {
+            templateName = templateName,
+            parts = parts,
+            callback = callback
+        })
+    end
+
     local spawner = Entities:FindByName(nil, templateName)
     DoEntFireByInstanceHandle(spawner, 'ForceSpawn', '', 0, nil, nil)
+
+    local this = self
 
     timers:setTimeout(function()
         local partList = {}
@@ -50,8 +62,20 @@ function util:spawnTemplateAndGrab(templateName, parts, callback)
             partList[_] = Entities:FindByName(nil, partName)
         end
 
+        -- Run any callbacks
         if callback then
             callback(partList)
+        end
+
+        -- We are no longer spawning
+        isCurrentlySpawning = false
+
+        -- Is there anything in the spawn queue?
+        if #spawnQueue > 0 then
+            local nextSpawnItem = table.remove(spawnQueue, 1)
+
+            -- Run it
+            this:spawnTemplateAndGrab(nextSpawnItem.templateName, nextSpawnItem.parts, nextSpawnItem.callback)
         end
     end, 0.1)
 end

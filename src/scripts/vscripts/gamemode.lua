@@ -496,7 +496,7 @@ function Gamemode:initInventory()
     self.myItems[constants.item_bomb] = true
     self.myItems[constants.item_map] = true
     self.myItems[constants.item_boomerang] = true
-    --self.myItems[constants.item_key] = true
+
 
     -- DEBUG: Give all items
     --[[for posNum, itemID in pairs(self.itemOrderList) do
@@ -507,7 +507,9 @@ function Gamemode:initInventory()
 
     -- Start with 0 keys
     self.totalKeys = 0
-    --self.totalKeys = 1
+
+    --self.myItems[constants.item_key] = true
+    --self.totalKeys = 100
 end
 
 -- Go to the next item in a hand

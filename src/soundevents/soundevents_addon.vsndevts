@@ -293,7 +293,7 @@
     music.hl1_song25_remix3 =
     {
         type = "destinations.simple_2d"
-        volume = 0.5
+        volume = 1.0
         pitch = 1.0
         delay = 0.0
         vsnd_files =
